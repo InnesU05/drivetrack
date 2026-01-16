@@ -30,10 +30,11 @@ export default function StudentDashboard() {
       setStudentName(user.user_metadata.full_name || "Student");
 
       // 2. Fetch My Lessons (RLS Policy ensures I only see mine)
-      const { data } = await supabase
+     const { data } = await supabase
         .from("lessons")
         .select("*")
-        .order("date", { ascending: false }); // Newest first
+        .order("date", { ascending: false })       // Primary: Sort by Date
+        .order("created_at", { ascending: false }); // Secondary: Sort by exact time logged
 
       if (data) setLessons(data);
       setLoading(false);

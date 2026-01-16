@@ -34,7 +34,8 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
         .from("lessons")
         .select("*")
         .eq("student_id", studentId)
-        .order("date", { ascending: false }); // Newest first
+        .order("date", { ascending: false })
+        .order("created_at", { ascending: false });
 
       if (lessonData) setLessons(lessonData);
       setLoading(false);

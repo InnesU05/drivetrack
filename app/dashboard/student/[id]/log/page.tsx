@@ -41,7 +41,8 @@ export default function LogLesson({ params }: { params: Promise<{ id: string }> 
         .from("lessons")
         .select("skills_report")
         .eq("student_id", studentId)
-        .order("date", { ascending: false }) // Ensure we get the newest one
+        .order("date", { ascending: false })
+        .order("created_at", { ascending: false }) // <--- Tie-breaker
         .limit(1)
         .single();
 
