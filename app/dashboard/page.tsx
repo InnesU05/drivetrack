@@ -143,7 +143,7 @@ export default function Dashboard() {
             filteredStudents.map((student) => (
               <div key={student.id} className="relative group">
                   <Link 
-                    href={`/dashboard/student/${student.id}/log`}
+                    href={`/dashboard/student/${student.id}`}
                     className="block bg-white p-4 rounded-xl border border-slate-100 shadow-sm active:bg-blue-50 transition-colors pr-16"
                   >
                     <div className="flex items-center gap-4">
