@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { Plus, User, ChevronRight, Loader2, QrCode, Search } from "lucide-react";
+import { User, ChevronRight, Loader2, QrCode, Search, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 type Student = {
@@ -19,7 +19,7 @@ export default function Dashboard() {
   const [students, setStudents] = useState<Student[]>([]);
   const [loading, setLoading] = useState(true);
   const [instructorName, setInstructorName] = useState("");
-  const [searchTerm, setSearchTerm] = useState(""); // New State for Search
+  const [searchTerm, setSearchTerm] = useState("");
 
   useEffect(() => {
     async function loadData() {
@@ -47,7 +47,28 @@ export default function Dashboard() {
     loadData();
   }, [router]);
 
-  // Filter logic: Check if name OR email matches the search text
+  const handleDeleteStudent = async (studentId: string, e: React.MouseEvent) => {
+    e.preventDefault(); // Stop the link from opening
+    e.stopPropagation(); // Double check to stop click bubbling
+
+    if (!confirm("Are you sure? This will delete the student AND all their lesson history permanently.")) {
+        return;
+    }
+
+    // 1. Delete all lessons for this student first (Database cleanup)
+    await supabase.from("lessons").delete().eq("student_id", studentId);
+
+    // 2. Delete the student profile
+    const { error } = await supabase.from("profiles").delete().eq("id", studentId);
+
+    if (error) {
+        alert("Error deleting student: " + error.message);
+    } else {
+        // 3. Update the screen instantly
+        setStudents(students.filter(s => s.id !== studentId));
+    }
+  };
+
   const filteredStudents = students.filter(student => 
     student.full_name.toLowerCase().includes(searchTerm.toLowerCase()) ||
     student.email.toLowerCase().includes(searchTerm.toLowerCase())
@@ -75,7 +96,7 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Search Bar (New) */}
+        {/* Search Bar */}
         <div className="relative">
             <Search className="absolute left-3 top-3 text-slate-400" size={20} />
             <input 
@@ -120,24 +141,31 @@ export default function Dashboard() {
             </div>
           ) : (
             filteredStudents.map((student) => (
-              <Link 
-                key={student.id} 
-                href={`/dashboard/student/${student.id}/log`}
-                className="block"
-              >
-                <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex justify-between items-center active:bg-blue-50 transition-colors">
-                  <div className="flex items-center gap-4">
-                      <div className="bg-slate-100 h-12 w-12 rounded-full flex items-center justify-center">
-                          <User className="text-slate-400" />
-                      </div>
-                      <div>
-                          <h3 className="font-bold text-slate-900 text-lg">{student.full_name}</h3>
-                          <p className="text-xs text-slate-500">{student.email}</p>
-                      </div>
-                  </div>
-                  <ChevronRight className="text-slate-300" />
-                </div>
-              </Link>
+              <div key={student.id} className="relative group">
+                  <Link 
+                    href={`/dashboard/student/${student.id}/log`}
+                    className="block bg-white p-4 rounded-xl border border-slate-100 shadow-sm active:bg-blue-50 transition-colors pr-16"
+                  >
+                    <div className="flex items-center gap-4">
+                        <div className="bg-slate-100 h-12 w-12 rounded-full flex items-center justify-center">
+                            <User className="text-slate-400" />
+                        </div>
+                        <div>
+                            <h3 className="font-bold text-slate-900 text-lg">{student.full_name}</h3>
+                            <p className="text-xs text-slate-500">{student.email}</p>
+                        </div>
+                    </div>
+                  </Link>
+                  
+                  {/* Delete Button (Floats on the right) */}
+                  <button 
+                    onClick={(e) => handleDeleteStudent(student.id, e)}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all z-10"
+                    title="Delete Student"
+                  >
+                    <Trash2 size={20} />
+                  </button>
+              </div>
             ))
           )}
         </div>
