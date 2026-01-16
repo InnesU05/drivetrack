@@ -8,6 +8,10 @@ export const metadata: Metadata = {
   title: "DriveTrack Pro",
   description: "Track driving lessons with ease",
   manifest: "/manifest.json",
+  icons: {
+    icon: "/icon-192.png", // Favicon for browser tabs
+    apple: "/icon-192.png", // The special icon for iPhones/iPads
+  },
 };
 
 export const viewport: Viewport = {
