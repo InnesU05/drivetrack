@@ -48,23 +48,19 @@ export default function Dashboard() {
   }, [router]);
 
   const handleDeleteStudent = async (studentId: string, e: React.MouseEvent) => {
-    e.preventDefault(); // Stop the link from opening
-    e.stopPropagation(); // Double check to stop click bubbling
+    e.preventDefault(); 
+    e.stopPropagation(); 
 
     if (!confirm("Are you sure? This will delete the student AND all their lesson history permanently.")) {
         return;
     }
 
-    // 1. Delete all lessons for this student first (Database cleanup)
     await supabase.from("lessons").delete().eq("student_id", studentId);
-
-    // 2. Delete the student profile
     const { error } = await supabase.from("profiles").delete().eq("id", studentId);
 
     if (error) {
         alert("Error deleting student: " + error.message);
     } else {
-        // 3. Update the screen instantly
         setStudents(students.filter(s => s.id !== studentId));
     }
   };
@@ -96,7 +92,6 @@ export default function Dashboard() {
           </div>
         </div>
 
-        {/* Search Bar */}
         <div className="relative">
             <Search className="absolute left-3 top-3 text-slate-400" size={20} />
             <input 
@@ -110,7 +105,6 @@ export default function Dashboard() {
       </header>
 
       <div className="p-4">
-        {/* Only show Invite button if NOT searching */}
         {searchTerm === "" && (
             <Link 
             href="/dashboard/invite" 
@@ -129,7 +123,6 @@ export default function Dashboard() {
             </Link>
         )}
 
-        {/* Student List */}
         <h2 className="text-lg font-bold text-slate-900 mb-4 px-1">
             {searchTerm ? `Found ${filteredStudents.length} student(s)` : "My Students"}
         </h2>
@@ -142,8 +135,9 @@ export default function Dashboard() {
           ) : (
             filteredStudents.map((student) => (
               <div key={student.id} className="relative group">
+                  {/* CRITICAL CHECK: This href MUST NOT end in /log */}
                   <Link 
-                    href={`/dashboard/student/${student.id}`}
+                    href={`/dashboard/student/${student.id}`} 
                     className="block bg-white p-4 rounded-xl border border-slate-100 shadow-sm active:bg-blue-50 transition-colors pr-16"
                   >
                     <div className="flex items-center gap-4">
@@ -157,7 +151,6 @@ export default function Dashboard() {
                     </div>
                   </Link>
                   
-                  {/* Delete Button (Floats on the right) */}
                   <button 
                     onClick={(e) => handleDeleteStudent(student.id, e)}
                     className="absolute right-2 top-1/2 -translate-y-1/2 p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all z-10"
