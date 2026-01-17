@@ -2,14 +2,16 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { Star, Calendar, LogOut, User } from "lucide-react";
+import { Star, Calendar, LogOut } from "lucide-react";
 import { useRouter } from "next/navigation";
+import ProgressChart from "@/components/ProgressChart";
 
 type Lesson = {
   id: string;
   date: string;
   notes: string;
   skills_report: Record<string, number>;
+  created_at: string;
 };
 
 export default function StudentDashboard() {
@@ -29,12 +31,12 @@ export default function StudentDashboard() {
       }
       setStudentName(user.user_metadata.full_name || "Student");
 
-      // 2. Fetch My Lessons (RLS Policy ensures I only see mine)
-     const { data } = await supabase
+      // 2. Fetch My Lessons (Sorted by Date, then Time)
+      const { data } = await supabase
         .from("lessons")
         .select("*")
-        .order("date", { ascending: false })       // Primary: Sort by Date
-        .order("created_at", { ascending: false }); // Secondary: Sort by exact time logged
+        .order("date", { ascending: false })
+        .order("created_at", { ascending: false });
 
       if (data) setLessons(data);
       setLoading(false);
@@ -72,6 +74,11 @@ export default function StudentDashboard() {
             </div>
         </div>
       </header>
+
+      {/* NEW: Progress Chart */}
+      <div className="px-4 mb-2">
+         {!loading && <ProgressChart lessons={lessons} />}
+      </div>
 
       {/* Lesson List */}
       <div className="px-4 space-y-4">
