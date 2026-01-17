@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
-import { Star, Calendar, LogOut } from "lucide-react";
+import { Star, Calendar, LogOut, Trophy, Hourglass } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProgressChart from "@/components/ProgressChart";
 
@@ -12,6 +12,8 @@ type Lesson = {
   notes: string;
   skills_report: Record<string, number>;
   created_at: string;
+  is_paid: boolean;
+  duration: number; // New Field
 };
 
 export default function StudentDashboard() {
@@ -21,9 +23,12 @@ export default function StudentDashboard() {
   const [loading, setLoading] = useState(true);
   const [studentName, setStudentName] = useState("");
 
+  // Stats
+  const [totalHours, setTotalHours] = useState(0);
+  const [readiness, setReadiness] = useState(0);
+
   useEffect(() => {
     async function loadData() {
-      // 1. Get Current User
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         router.push("/login");
@@ -31,14 +36,27 @@ export default function StudentDashboard() {
       }
       setStudentName(user.user_metadata.full_name || "Student");
 
-      // 2. Fetch My Lessons (Sorted by Date, then Time)
       const { data } = await supabase
         .from("lessons")
         .select("*")
         .order("date", { ascending: false })
         .order("created_at", { ascending: false });
 
-      if (data) setLessons(data);
+      if (data) {
+        setLessons(data);
+        
+        // Calculate Stats
+        const hours = data.reduce((sum, lesson) => sum + (lesson.duration || 0), 0);
+        setTotalHours(hours);
+
+        if (data.length > 0) {
+            const latestSkills = data[0].skills_report || {};
+            const scores = Object.values(latestSkills) as number[];
+            const passedSkills = scores.filter(s => s >= 4).length;
+            const percentage = Math.round((passedSkills / 8) * 100);
+            setReadiness(percentage > 100 ? 100 : percentage);
+        }
+      }
       setLoading(false);
     }
     loadData();
@@ -53,7 +71,7 @@ export default function StudentDashboard() {
     <div className="min-h-screen bg-slate-50 pb-10">
       {/* Header */}
       <header className="bg-blue-600 text-white p-6 shadow-lg rounded-b-3xl mb-6">
-        <div className="flex justify-between items-start mb-4">
+        <div className="flex justify-between items-start mb-6">
           <div>
             <h1 className="text-2xl font-bold">My Progress</h1>
             <p className="text-blue-100 text-sm">Welcome back, {studentName}</p>
@@ -63,19 +81,24 @@ export default function StudentDashboard() {
           </button>
         </div>
         
-        {/* Quick Stat Card */}
-        <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20 flex items-center gap-3">
-            <div className="bg-white text-blue-600 p-2 rounded-full font-bold h-10 w-10 flex items-center justify-center">
-                {lessons.length}
+        {/* NEW: Stats Row */}
+        <div className="grid grid-cols-2 gap-3">
+            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20 flex flex-col items-center">
+                <div className="text-2xl font-bold">{totalHours}</div>
+                <div className="text-xs text-blue-100 uppercase tracking-wide flex items-center gap-1">
+                    <Hourglass size={12} /> Hours Driven
+                </div>
             </div>
-            <div>
-                <p className="font-bold text-sm">Lessons Completed</p>
-                <p className="text-xs text-blue-100">Keep up the good work!</p>
+            <div className="bg-white/10 backdrop-blur-sm p-4 rounded-xl border border-white/20 flex flex-col items-center">
+                <div className="text-2xl font-bold">{readiness}%</div>
+                <div className="text-xs text-blue-100 uppercase tracking-wide flex items-center gap-1">
+                    <Trophy size={12} /> Test Ready
+                </div>
             </div>
         </div>
       </header>
 
-      {/* NEW: Progress Chart */}
+      {/* Progress Chart */}
       <div className="px-4 mb-2">
          {!loading && <ProgressChart lessons={lessons} />}
       </div>
@@ -91,13 +114,17 @@ export default function StudentDashboard() {
         ) : (
             lessons.map((lesson) => (
               <div key={lesson.id} className="bg-white rounded-2xl p-5 shadow-sm border border-slate-100">
-                {/* Date Header */}
-                <div className="flex items-center gap-2 text-slate-400 mb-4 text-xs font-bold uppercase tracking-wider">
-                   <Calendar size={14} />
-                   {new Date(lesson.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
+                <div className="flex justify-between items-start mb-4">
+                    <div className="flex items-center gap-2 text-slate-400 text-xs font-bold uppercase tracking-wider">
+                        <Calendar size={14} />
+                        {new Date(lesson.date).toLocaleDateString('en-GB', { weekday: 'long', day: 'numeric', month: 'long' })}
+                    </div>
+                    {/* Duration Badge */}
+                    <span className="bg-slate-100 text-slate-500 text-[10px] font-bold px-2 py-1 rounded-md">
+                        {lesson.duration || 1} Hr
+                    </span>
                 </div>
 
-                {/* Skills Grid */}
                 <div className="space-y-3 mb-4">
                     {lesson.skills_report && Object.entries(lesson.skills_report).map(([skill, score]: any) => (
                         score > 0 && (
@@ -113,7 +140,6 @@ export default function StudentDashboard() {
                     ))}
                 </div>
 
-                {/* Instructor Notes */}
                 {lesson.notes && (
                     <div className="bg-blue-50 p-3 rounded-xl text-blue-800 text-sm italic border border-blue-100">
                         "{lesson.notes}"
