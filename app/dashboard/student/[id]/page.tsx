@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { ArrowLeft, Plus, Calendar, Trash2, Star, Clock, Trophy, Hourglass, Edit3 } from "lucide-react";
+import { ArrowLeft, Plus, Calendar, Trash2, Star, Clock, Trophy, Hourglass, Edit3, Archive, RotateCcw } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProgressChart from "@/components/ProgressChart";
 
@@ -50,9 +50,24 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
     loadData();
   }, [studentId]);
 
+  const toggleArchive = async () => {
+    const newValue = !student.archived;
+    const confirmMessage = newValue 
+        ? "Move this student to 'Past Students'? They will be hidden from your main dashboard." 
+        : "Restore this student to 'Active'?";
+    
+    if (!confirm(confirmMessage)) return;
+
+    const { error } = await supabase.from("profiles").update({ archived: newValue }).eq("id", studentId);
+    
+    if (!error) {
+        setStudent({ ...student, archived: newValue });
+        router.refresh(); // Refresh to update the dashboard cache
+    }
+  };
+
   const handleDeleteLesson = async (lessonId: string, e: React.MouseEvent) => {
-    e.preventDefault(); 
-    e.stopPropagation(); 
+    e.preventDefault(); e.stopPropagation(); 
     if (!confirm("Delete this lesson record?")) return;
     const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
     if (!error) {
@@ -63,8 +78,7 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   };
 
   const togglePayment = async (lessonId: string, currentStatus: boolean, e: React.MouseEvent) => {
-    e.preventDefault(); 
-    e.stopPropagation();
+    e.preventDefault(); e.stopPropagation();
     const updatedLessons = lessons.map(l => l.id === lessonId ? { ...l, is_paid: !currentStatus } : l);
     setLessons(updatedLessons);
     await supabase.from("lessons").update({ is_paid: !currentStatus }).eq("id", lessonId);
@@ -75,10 +89,24 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
       <div className="bg-white p-6 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
-        <div className="flex items-center gap-4 mb-4">
-            <Link href="/dashboard" className="text-slate-400 hover:text-slate-600"><ArrowLeft /></Link>
-            <h1 className="text-xl font-bold text-slate-900 truncate">{student?.full_name}</h1>
+        <div className="flex justify-between items-start mb-4">
+            <div className="flex items-center gap-4">
+                <Link href="/dashboard" className="text-slate-400 hover:text-slate-600"><ArrowLeft /></Link>
+                <div>
+                    <h1 className="text-xl font-bold text-slate-900 truncate">{student?.full_name}</h1>
+                    {student?.archived && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">ARCHIVED</span>}
+                </div>
+            </div>
+            {/* Archive / Restore Button */}
+            <button 
+                onClick={toggleArchive}
+                className="text-slate-400 hover:text-blue-600 p-2"
+                title={student?.archived ? "Restore Student" : "Archive Student"}
+            >
+                {student?.archived ? <RotateCcw size={20} /> : <Archive size={20} />}
+            </button>
         </div>
+
         <Link href={`/dashboard/student/${studentId}/log`} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all">
             <Plus size={24} /> Log New Lesson
         </Link>
@@ -134,7 +162,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
                         ))}
                     </div>
 
-                    {/* UPDATED TEXT HERE */}
                     <div className="absolute bottom-4 left-5 text-[10px] text-slate-300 font-bold italic flex items-center gap-1 group-hover:text-blue-400 transition-colors">
                         <Edit3 size={10} /> Click to edit
                     </div>
