@@ -5,15 +5,16 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "GoLesson", // <--- CHANGE
+  metadataBase: new URL("https://golessonapp.vercel.app"),
+  title: "GoLesson", 
   description: "The complete driving lesson tracker.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "GoLesson", // <--- CHANGE
+    title: "GoLesson", 
   },
-  // ... keep the rest the same
+  
 };
 
 export const viewport: Viewport = {
