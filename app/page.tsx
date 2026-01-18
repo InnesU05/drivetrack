@@ -1,4 +1,4 @@
-"use client"; // <--- Required for the mobile menu to work
+"use client";
 
 import Link from "next/link";
 import { useState } from "react";
@@ -7,7 +7,7 @@ import {
   Smartphone, 
   CreditCard, 
   Shield, 
-  Zap, 
+  Car, // <--- Switched from 'Zap' to 'Car'
   Menu, 
   X 
 } from "lucide-react";
@@ -25,7 +25,8 @@ export default function LandingPage() {
             
             {/* Logo Section */}
             <div className="flex items-center gap-2">
-              <Zap className="text-blue-600 fill-blue-600" size={24} />
+              {/* UPDATED: Uses a Car icon instead of Lightning bolt */}
+              <Car className="text-blue-600 fill-blue-600" size={28} />
               <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
                 LearnerLog
               </h1>
@@ -57,7 +58,6 @@ export default function LandingPage() {
         </div>
 
         {/* --- MOBILE MENU DROPDOWN --- */}
-        {/* This slides down when you click the menu icon */}
         {isMenuOpen && (
           <div className="md:hidden bg-white border-t border-slate-100 shadow-xl absolute w-full left-0">
             <div className="px-4 pt-4 pb-6 space-y-3 flex flex-col">
@@ -82,8 +82,8 @@ export default function LandingPage() {
         {/* --- HERO SECTION --- */}
         <section className="px-4 py-16 md:py-32 text-center max-w-4xl mx-auto flex flex-col items-center">
           
-          {/* Beta Badge */}
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-8 shadow-sm animate-fade-in-up">
+          {/* BETA BADGE (Restored & Prominent) */}
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-8 shadow-sm">
             <span className="relative flex h-2.5 w-2.5">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
@@ -109,8 +109,10 @@ export default function LandingPage() {
             >
                 Start 1-Month Free Trial <ArrowRight size={22} />
             </Link>
+            
+            {/* UPDATED: clearer subtext */}
             <p className="text-sm text-slate-400 mt-5">
-                No credit card required to sign up. Cancel anytime.
+                First month free • Cancel anytime
             </p>
           </div>
         </section>
@@ -159,7 +161,7 @@ export default function LandingPage() {
       {/* --- FOOTER --- */}
       <footer className="py-10 text-center bg-white border-t border-slate-100">
         <div className="flex items-center justify-center gap-2 mb-4 opacity-50">
-            <Zap size={20} />
+            <Car size={20} />
             <span className="font-bold text-lg">LearnerLog</span>
         </div>
         <p className="text-slate-400 text-sm">© {new Date().getFullYear()} LearnerLog. All rights reserved.</p>
