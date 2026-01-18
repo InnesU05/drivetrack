@@ -66,7 +66,7 @@ export default function SubscribePage() {
             <Zap size={32} />
         </div>
         <h1 className="text-2xl font-bold text-slate-900 mb-2">Start your 30-Day Free Trial</h1>
-        <p className="text-slate-500 mb-8">Full access to GoLesson. Cancel anytime.</p>
+        <p className="text-slate-500 mb-8">Full access to LearnerLog. Cancel anytime.</p>
         
         <button 
             onClick={handleCheckout}

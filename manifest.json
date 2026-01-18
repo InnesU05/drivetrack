@@ -1,6 +1,6 @@
 {
-  "name": "GoLesson",
-  "short_name": "GoLesson",
+  "name": "LearnerLog",
+  "short_name": "LearnerLog",
   "description": "Driving Instructor Tracking App",
   "start_url": "/",
   "display": "standalone",

@@ -109,7 +109,7 @@ if (profile.role === 'instructor') {
       <div className="bg-white p-6 border-b border-slate-200 sticky top-0 z-10 shadow-sm flex justify-between items-center">
         <div>
             <h1 className="text-xl font-extrabold text-slate-900">Hello, {instructorName.split(' ')[0]} 👋</h1>
-            <p className="text-xs text-slate-500 font-medium">GoLesson Instructor</p>
+            <p className="text-xs text-slate-500 font-medium">LearnerLog Instructor</p>
         </div>
         
         {/* Header Actions: Settings & Sign Out */}

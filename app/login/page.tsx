@@ -57,7 +57,7 @@ export default function Login() {
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
       
       <div className="mb-8 text-center">
-        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">GoLesson</h1>
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">LearnerLog</h1>
         <p className="text-slate-500 mt-2">The smart way to manage driving lessons.</p>
       </div>
 
@@ -153,7 +153,7 @@ export default function Login() {
       </div>
 
       <p className="mt-8 text-center text-xs text-slate-400">
-        © 2026 GoLesson. Secure & Private.
+        © 2026 LearnerLog. Secure & Private.
       </p>
     </div>
   );

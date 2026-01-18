@@ -13,7 +13,7 @@ export default function LandingPage() {
              <div className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-md text-xs font-extrabold uppercase tracking-wider border border-blue-200">
                Beta
              </div>
-             <span className="text-xl font-bold text-slate-900 tracking-tight">GoLesson</span>
+             <span className="text-xl font-bold text-slate-900 tracking-tight">LearnerLog</span>
           </div>
           <div className="flex gap-4">
              <Link href="/login" className="text-slate-600 hover:text-slate-900 font-medium px-4 py-2">
@@ -97,7 +97,7 @@ export default function LandingPage() {
 
       {/* Footer */}
       <footer className="bg-slate-50 border-t border-slate-200 py-12 text-center">
-        <p className="text-slate-400 text-sm mb-4">© 2026 GoLesson. All rights reserved.</p>
+        <p className="text-slate-400 text-sm mb-4">© 2026 LearnerLog. All rights reserved.</p>
         <div className="flex justify-center gap-6 text-xs text-slate-400 underline">
             <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
             <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>
