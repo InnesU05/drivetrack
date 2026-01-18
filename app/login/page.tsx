@@ -3,122 +3,133 @@
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { Car, Loader2 } from "lucide-react";
+import { Loader2, Mail, Lock, UserPlus } from "lucide-react";
+import Link from "next/link"; // Added this import
 
-export default function LoginPage() {
-  const router = useRouter();
+export default function Login() {
   const supabase = createClient();
-
-  const [isSignUp, setIsSignUp] = useState(false);
+  const router = useRouter();
+  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState({ email: "", password: "", fullName: "" });
+  const [isSignUp, setIsSignUp] = useState(false); // Toggle between Login and Signup
 
-  const handleAuth = async (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     if (isSignUp) {
-      // 1. SIGN UP (Instructors only)
-      const { error } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.fullName,
-            role: 'instructor' // Hardcoded: Signups here are always Instructors
-          }
+        // Handle Sign Up
+        const { data, error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    full_name: email.split("@")[0], // Default name from email
+                }
+            }
+        });
+        if (error) {
+            alert(error.message);
+        } else {
+            // Since we disabled email confirmation, this logs them in immediately
+            router.push("/dashboard");
         }
-      });
-      if (error) {
-        alert(error.message);
-      } else {
-        alert("Account created! Logging you in...");
-        router.push("/dashboard");
-      }
     } else {
-      // 2. LOGIN (Both Instructors and Students)
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email: formData.email,
-        password: formData.password,
-      });
-
-      if (error) {
-        alert(error.message);
-      } else {
-        // --- SMART REDIRECT LOGIC ---
-        const role = data.user?.user_metadata?.role;
-        
-        if (role === 'student') {
-            router.push("/student-view");
+        // Handle Login
+        const { error } = await supabase.auth.signInWithPassword({
+            email,
+            password,
+        });
+        if (error) {
+            alert(error.message);
         } else {
             router.push("/dashboard");
         }
-      }
     }
     setLoading(false);
   };
 
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-4">
-      <div className="bg-blue-600 p-4 rounded-full mb-6 shadow-lg shadow-blue-200">
-        <Car className="w-10 h-10 text-white" />
-      </div>
+    <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
       
-      <div className="bg-white w-full max-w-sm p-8 rounded-2xl shadow-xl border border-slate-100">
-        <h1 className="text-2xl font-bold text-center mb-2 text-slate-900">
-          {isSignUp ? "Instructor Sign Up" : "Welcome Back"}
-        </h1>
-        <p className="text-center text-slate-400 mb-6 text-sm">
-          {isSignUp ? "Create your driving school account" : "Login to view progress"}
-        </p>
-
-        <form onSubmit={handleAuth} className="space-y-4">
-          {isSignUp && (
-            <input 
-              type="text" 
-              placeholder="Full Name" 
-              className="w-full p-3 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-              value={formData.fullName}
-              onChange={e => setFormData({...formData, fullName: e.target.value})}
-              required
-            />
-          )}
-          
-          <input 
-            type="email" 
-            placeholder="Email" 
-            className="w-full p-3 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-            value={formData.email}
-            onChange={e => setFormData({...formData, email: e.target.value})}
-            required
-          />
-          
-          <input 
-            type="password" 
-            placeholder="Password" 
-            className="w-full p-3 border border-slate-200 rounded-lg outline-none focus:ring-2 focus:ring-blue-500 text-slate-900"
-            value={formData.password}
-            onChange={e => setFormData({...formData, password: e.target.value})}
-            required
-          />
-
-          <button 
-            disabled={loading}
-            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 active:scale-95 transition-all flex justify-center items-center"
-          >
-            {loading ? <Loader2 className="animate-spin" /> : (isSignUp ? "Create Account" : "Sign In")}
-          </button>
-        </form>
-
-        <div className="mt-6 text-center">
-          <button 
-            onClick={() => setIsSignUp(!isSignUp)}
-            className="text-sm text-blue-600 font-semibold hover:underline"
-          >
-            {isSignUp ? "Already have an account? Sign In" : "New Instructor? Create Account"}
-          </button>
-        </div>
+      <div className="mb-8 text-center">
+        <h1 className="text-4xl font-extrabold text-slate-900 tracking-tight">DriveTrack</h1>
+        <p className="text-slate-500 mt-2">The smart way to manage driving lessons.</p>
       </div>
+
+      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
+        
+        {/* Toggle Header */}
+        <div className="flex bg-slate-100 p-1 rounded-xl mb-8">
+            <button 
+                onClick={() => setIsSignUp(false)}
+                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${!isSignUp ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}
+            >
+                Log In
+            </button>
+            <button 
+                onClick={() => setIsSignUp(true)}
+                className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${isSignUp ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
+            >
+                Sign Up
+            </button>
+        </div>
+
+        <form onSubmit={handleLogin} className="space-y-4">
+            <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
+                <div className="relative">
+                    <Mail className="absolute left-4 top-3.5 text-slate-400" size={20} />
+                    <input 
+                        required
+                        type="email" 
+                        placeholder="you@example.com"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                    />
+                </div>
+            </div>
+
+            <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Password</label>
+                <div className="relative">
+                    <Lock className="absolute left-4 top-3.5 text-slate-400" size={20} />
+                    <input 
+                        required
+                        type="password" 
+                        placeholder="••••••••"
+                        className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                    />
+                </div>
+            </div>
+
+            {/* Forgot Password Link - Only show in Login mode */}
+            {!isSignUp && (
+                <div className="text-right">
+                    <Link href="/forgot-password" className="text-sm font-bold text-blue-600 hover:underline">
+                        Forgot Password?
+                    </Link>
+                </div>
+            )}
+
+            <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform"
+            >
+                {loading ? <Loader2 className="animate-spin" /> : (isSignUp ? "Create Account" : "Sign In")}
+            </button>
+        </form>
+      </div>
+
+      <p className="mt-8 text-center text-xs text-slate-400">
+        © 2026 DriveTrack. Secure & Private.
+      </p>
     </div>
   );
 }
