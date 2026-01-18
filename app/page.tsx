@@ -1,5 +1,5 @@
 import Link from "next/link";
-import { CheckCircle2, ChevronRight, CreditCard, MapPin, ShieldCheck, Smartphone } from "lucide-react";
+import { CheckCircle2, ChevronRight, CreditCard, ShieldCheck, Smartphone, Zap } from "lucide-react";
 
 export default function LandingPage() {
   return (
@@ -9,7 +9,10 @@ export default function LandingPage() {
       <nav className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
         <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
-             <div className="bg-blue-600 text-white p-1.5 rounded-lg font-bold">DT</div>
+             {/* Beta Badge */}
+             <div className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-md text-xs font-extrabold uppercase tracking-wider border border-blue-200">
+               Beta
+             </div>
              <span className="text-xl font-bold text-slate-900 tracking-tight">GoLesson</span>
           </div>
           <div className="flex gap-4">
@@ -17,7 +20,7 @@ export default function LandingPage() {
                Log In
              </Link>
              <Link href="/login" className="bg-slate-900 text-white font-bold px-5 py-2 rounded-full hover:bg-slate-800 transition-colors">
-               Get Started
+               Start Free Trial
              </Link>
           </div>
         </div>
@@ -30,7 +33,7 @@ export default function LandingPage() {
             <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
             <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
           </span>
-          Now Available on iOS & Android
+          Accepting Beta Testers
         </div>
         
         <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6 max-w-3xl animate-in fade-in slide-in-from-bottom-6 duration-700">
@@ -38,16 +41,16 @@ export default function LandingPage() {
         </h1>
         
         <p className="text-lg md:text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700">
-          Ditch the paper diaries. Track student progress, payments, and lesson history in one secure app. Built for modern instructors.
+          Ditch the paper diaries. Track student progress, payments, and lesson history in one secure app.
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-md animate-in fade-in slide-in-from-bottom-10 duration-1000">
            <Link href="/login" className="flex-1 bg-blue-600 text-white text-lg font-bold py-4 rounded-xl shadow-xl hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2">
-             Start for Free <ChevronRight />
+             Start 1-Month Free Trial <ChevronRight />
            </Link>
         </div>
         
-        <p className="text-slate-400 text-sm mt-6">No credit card required • Unlimited students</p>
+        <p className="text-slate-400 text-sm mt-6">First month free • Cancel anytime</p>
       </header>
 
       {/* Features Grid */}
@@ -92,14 +95,14 @@ export default function LandingPage() {
         </div>
       </section>
 
-   {/* Footer */}
-<footer className="bg-slate-50 border-t border-slate-200 py-12 text-center">
-    <p className="text-slate-400 text-sm mb-4">© 2026 GoLesson. All rights reserved.</p>
-    <div className="flex justify-center gap-6 text-xs text-slate-400 underline">
-        <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
-        <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>
-    </div>
-</footer>
+      {/* Footer */}
+      <footer className="bg-slate-50 border-t border-slate-200 py-12 text-center">
+        <p className="text-slate-400 text-sm mb-4">© 2026 GoLesson. All rights reserved.</p>
+        <div className="flex justify-center gap-6 text-xs text-slate-400 underline">
+            <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
+            <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>
+        </div>
+      </footer>
     </div>
   );
 }

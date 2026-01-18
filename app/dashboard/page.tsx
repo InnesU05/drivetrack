@@ -3,59 +3,58 @@
 import { useEffect, useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { User, ChevronRight, Loader2, QrCode, Search, Trash2, Archive, Users, AlertCircle, Settings, X, LogOut, Mail, UserX, Download, Share, MoreVertical, PlusSquare, BookOpen, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-
-type Student = {
-  id: string;
-  full_name: string;
-  email: string;
-  archived: boolean;
-  unpaid_count?: number;
-};
+import { 
+  Search, 
+  User, 
+  ChevronRight, 
+  QrCode, 
+  LogOut, 
+  Loader2, 
+  Users, 
+  Archive, 
+  CheckCircle2, 
+  AlertCircle,
+  Settings,    // <--- Added back
+  BookOpen,    // <--- Added back
+  Download     // <--- Added back
+} from "lucide-react";
 
 export default function Dashboard() {
   const supabase = createClient();
   const router = useRouter();
-  
-  const [students, setStudents] = useState<Student[]>([]);
+
+  // --- 1. STATE ---
   const [loading, setLoading] = useState(true);
   const [instructorName, setInstructorName] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
-  const [view, setView] = useState<'active' | 'archived'>('active');
+  const [students, setStudents] = useState<any[]>([]);
+  const [filteredStudents, setFilteredStudents] = useState<any[]>([]);
   
-  // Menu States
-  const [isSettingsOpen, setIsSettingsOpen] = useState(false);
-  const [isInstallOpen, setIsInstallOpen] = useState(false);
-  const [isGuideOpen, setIsGuideOpen] = useState(false); // NEW: Guide State
-  const [installTab, setInstallTab] = useState<'ios' | 'android'>('ios');
+  // Search & Filter State
+  const [searchTerm, setSearchTerm] = useState("");
+  const [currentTab, setCurrentTab] = useState<'active' | 'archived'>('active');
 
- useEffect(() => {
+  // --- 2. DATA LOADING ---
+  useEffect(() => {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
       
-      // 1. Get the current user's profile to check their ROLE
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("*")
-        .eq("id", user.id)
-        .single();
+      const { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
 
-      // --- NEW LOGIC: STUDENT REDIRECT ---
       if (profile && profile.role === 'student') {
         router.replace(`/dashboard/student/${user.id}`);
         return;
       }
-      // -----------------------------------
       
       setInstructorName(user.user_metadata.full_name || "Instructor");
 
       const { data: studentData } = await supabase
         .from("profiles")
-        .select("id, full_name, email, archived")
+        .select("id, full_name, email, archived, created_at")
         .eq("instructor_id", user.id)
-        .eq("role", "student");
+        .eq("role", "student")
+        .order("full_name", { ascending: true });
 
       if (studentData) {
         const studentsWithCounts = await Promise.all(
@@ -75,242 +74,165 @@ export default function Dashboard() {
     loadData();
   }, [router]);
 
-  const handleDeleteStudent = async (studentId: string, e: React.MouseEvent) => {
-    e.preventDefault(); e.stopPropagation(); 
-    if (!confirm("Are you sure? This will delete the student PERMANENTLY.")) return;
-    await supabase.from("lessons").delete().eq("student_id", studentId);
-    const { error } = await supabase.from("profiles").delete().eq("id", studentId);
-    if (!error) setStudents(students.filter(s => s.id !== studentId));
-  };
+  // --- 3. FILTERING ---
+  useEffect(() => {
+    let results = students;
+    if (currentTab === 'active') results = results.filter(s => !s.archived);
+    else results = results.filter(s => s.archived);
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-    router.push("/login");
-  };
+    if (searchTerm) {
+        results = results.filter(s => s.full_name.toLowerCase().includes(searchTerm.toLowerCase()));
+    }
+    setFilteredStudents(results);
+  }, [searchTerm, currentTab, students]);
 
-  const filteredStudents = students.filter(student => {
-    const matchesSearch = student.full_name.toLowerCase().includes(searchTerm.toLowerCase()) || 
-                          student.email.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesView = view === 'active' ? !student.archived : student.archived;
-    return matchesSearch && matchesView;
-  });
-
-  if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="animate-spin text-blue-600" size={40} /></div>;
+  if (loading) return (
+      <div className="min-h-screen flex items-center justify-center bg-slate-50 text-slate-400 font-medium">
+          <Loader2 className="animate-spin mr-2" /> Loading...
+      </div>
+  );
 
   return (
-    <div className="min-h-screen bg-slate-50 pb-24 relative overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 pb-20">
       
-      {/* NEW: App Guide Modal */}
-      {isGuideOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsGuideOpen(false)} />
-            <div className="bg-white rounded-2xl w-full max-w-sm relative z-10 p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-                <button onClick={() => setIsGuideOpen(false)} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
-                    <X size={24} />
-                </button>
-                <div className="text-center mb-6">
-                    <div className="h-12 w-12 bg-purple-100 text-purple-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <BookOpen size={24} />
-                    </div>
-                    <h2 className="text-xl font-bold text-slate-900">Quick Start Guide</h2>
-                </div>
-                <div className="space-y-4">
-                    <div className="flex gap-4">
-                        <div className="mt-1"><div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-xs font-bold text-slate-500">1</div></div>
-                        <div><h3 className="font-bold text-slate-800">Invite a Student</h3><p className="text-sm text-slate-500">Click the blue "Invite Student" card to use the QR code.</p></div>
-                    </div>
-                    <div className="flex gap-4">
-                        <div className="mt-1"><div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-xs font-bold text-slate-500">2</div></div>
-                        <div><h3 className="font-bold text-slate-800">Log a Lesson</h3><p className="text-sm text-slate-500">Tap a student's name, then click "Log New Lesson" to track skills.</p></div>
-                    </div>
-                    <div className="flex gap-4">
-                        <div className="mt-1"><div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-xs font-bold text-slate-500">3</div></div>
-                        <div><h3 className="font-bold text-slate-800">Track Payments</h3><p className="text-sm text-slate-500">Use the Paid/Unpaid toggle on the lesson history to manage debts.</p></div>
-                    </div>
-                </div>
-                <button onClick={() => setIsGuideOpen(false)} className="w-full mt-6 bg-slate-900 text-white font-bold py-3 rounded-xl">Close Guide</button>
-            </div>
+      {/* --- HEADER --- */}
+      <div className="bg-white p-6 border-b border-slate-200 sticky top-0 z-10 shadow-sm flex justify-between items-center">
+        <div>
+            <h1 className="text-xl font-extrabold text-slate-900">Hello, {instructorName.split(' ')[0]} 👋</h1>
+            <p className="text-xs text-slate-500 font-medium">GoLesson Instructor</p>
         </div>
-      )}
+        
+        {/* Header Actions: Settings & Sign Out */}
+        <div className="flex items-center gap-2">
+            <Link 
+                href="/dashboard/settings" 
+                className="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded-lg transition-colors"
+            >
+                <Settings size={20} />
+            </Link>
+            <button 
+                onClick={() => { supabase.auth.signOut(); router.push("/login"); }} 
+                className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+            >
+                <LogOut size={20} />
+            </button>
+        </div>
+      </div>
 
-      {/* Install Guide Modal */}
-      {isInstallOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-            <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={() => setIsInstallOpen(false)} />
-            <div className="bg-white rounded-2xl w-full max-w-sm relative z-10 p-6 shadow-2xl animate-in zoom-in-95 duration-200">
-                <button onClick={() => setIsInstallOpen(false)} className="absolute right-4 top-4 text-slate-400 hover:text-slate-600">
-                    <X size={24} />
-                </button>
-                <div className="text-center mb-6">
-                    <div className="h-12 w-12 bg-blue-100 text-blue-600 rounded-full flex items-center justify-center mx-auto mb-3">
-                        <Download size={24} />
+      <div className="p-4 space-y-4">
+        
+        {/* --- SCENARIO A: ZERO STUDENTS (Onboarding) --- */}
+        {students.length === 0 ? (
+           <div className="space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700 mt-4">
+              <div className="bg-slate-900 text-white p-6 rounded-2xl shadow-xl text-center py-10 relative overflow-hidden">
+                 <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-blue-600/20 to-transparent pointer-events-none"></div>
+                 <div className="relative z-10">
+                    <div className="bg-white/10 w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-4 text-blue-300 backdrop-blur-sm">
+                        <QrCode size={32} />
                     </div>
-                    <h2 className="text-xl font-bold text-slate-900">Install App</h2>
+                    <h2 className="text-2xl font-bold mb-2">Let's get started!</h2>
+                    <p className="text-slate-400 mb-6 text-sm px-4">Invite your first learner to start tracking.</p>
+                    <Link href="/dashboard/invite" className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl inline-flex items-center gap-2 transition-all active:scale-95 shadow-lg shadow-blue-900/50">
+                        <QrCode size={20} /> Invite Student
+                    </Link>
+                 </div>
+              </div>
+
+              {/* Quick Links Row (Visible even during onboarding) */}
+              <div className="grid grid-cols-2 gap-3">
+                  <Link href="/dashboard/help" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs hover:border-blue-300 transition-colors">
+                      <BookOpen size={16} /> How to Use
+                  </Link>
+                  <Link href="/dashboard/install" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs hover:border-blue-300 transition-colors">
+                      <Download size={16} /> Install App
+                  </Link>
+              </div>
+
+              <div className="bg-white p-6 rounded-xl border border-slate-200 shadow-sm">
+                 <h3 className="font-bold text-slate-900 mb-4">Setup Checklist</h3>
+                 <div className="space-y-3">
+                    <div className="flex items-center gap-3 text-slate-400 opacity-50"><CheckCircle2 className="text-green-500" size={20} /><span className="text-sm font-medium line-through">Create Account</span></div>
+                    <div className="flex items-center gap-3 text-slate-800"><div className="w-5 h-5 rounded-full border-2 border-blue-600 bg-blue-600"></div><span className="text-sm font-bold">Invite a Student</span></div>
+                    <div className="flex items-center gap-3 text-slate-400"><div className="w-5 h-5 rounded-full border-2 border-slate-200"></div><span className="text-sm">Log first lesson</span></div>
+                 </div>
+              </div>
+           </div>
+        ) : (
+           /* --- SCENARIO B: ACTIVE DASHBOARD --- */
+           <>
+                {/* 1. Invite Button */}
+                <Link href="/dashboard/invite" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all">
+                    <QrCode size={20} /> Invite New Student
+                </Link>
+
+                {/* 2. Quick Actions (Restored) */}
+                <div className="grid grid-cols-2 gap-3">
+                    <Link href="/dashboard/help" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs hover:border-blue-300 transition-colors">
+                        <BookOpen size={16} /> How to Use
+                    </Link>
+                    <Link href="/dashboard/install" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs hover:border-blue-300 transition-colors">
+                        <Download size={16} /> Install App
+                    </Link>
                 </div>
-                <div className="flex bg-slate-100 p-1 rounded-lg mb-6">
-                    <button onClick={() => setInstallTab('ios')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${installTab === 'ios' ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}>iPhone / iPad</button>
-                    <button onClick={() => setInstallTab('android')} className={`flex-1 py-2 text-sm font-bold rounded-md transition-all ${installTab === 'android' ? 'bg-white shadow text-green-600' : 'text-slate-500'}`}>Android</button>
+
+                {/* 3. Search & Tabs */}
+                <div className="flex gap-2">
+                    <div className="relative flex-1">
+                        <Search className="absolute left-3 top-3 text-slate-400" size={16} />
+                        <input 
+                            type="text" 
+                            placeholder="Search name..." 
+                            value={searchTerm}
+                            onChange={(e) => setSearchTerm(e.target.value)}
+                            className="w-full pl-9 pr-4 py-2.5 rounded-xl bg-white border border-slate-200 text-sm font-bold text-slate-900 placeholder:text-slate-400 focus:ring-2 focus:ring-blue-500 outline-none"
+                        />
+                    </div>
+                    <div className="bg-white p-1 rounded-xl border border-slate-200 flex flex-shrink-0">
+                        <button onClick={() => setCurrentTab('active')} className={`px-3 py-1.5 rounded-lg transition-colors ${currentTab === 'active' ? 'bg-slate-100 text-blue-600 shadow-sm' : 'text-slate-400'}`}>
+                            <Users size={18} />
+                        </button>
+                        <button onClick={() => setCurrentTab('archived')} className={`px-3 py-1.5 rounded-lg transition-colors ${currentTab === 'archived' ? 'bg-slate-100 text-slate-800 shadow-sm' : 'text-slate-400'}`}>
+                            <Archive size={18} />
+                        </button>
+                    </div>
                 </div>
-                <div className="bg-slate-50 rounded-xl p-5 border border-slate-100">
-                    {installTab === 'ios' ? (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3 text-sm text-slate-700"><Share size={16} className="text-blue-500" /><span>Tap <strong>Share</strong> on browser bar.</span></div>
-                            <div className="flex items-center gap-3 text-sm text-slate-700"><PlusSquare size={16} className="text-slate-600" /><span>Tap <strong>Add to Home Screen</strong>.</span></div>
+
+                {/* 4. Student List */}
+                <div className="space-y-3 min-h-[300px]">
+                    {filteredStudents.length === 0 ? (
+                        <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-xl bg-white/50">
+                            <User className="mx-auto text-slate-300 mb-3" size={40} />
+                            <p className="text-slate-500 font-medium">No {currentTab} students found.</p>
                         </div>
                     ) : (
-                        <div className="space-y-4">
-                            <div className="flex items-center gap-3 text-sm text-slate-700"><MoreVertical size={16} className="text-slate-600" /><span>Tap <strong>Three Dots</strong> menu.</span></div>
-                            <div className="flex items-center gap-3 text-sm text-slate-700"><Download size={16} className="text-green-600" /><span>Select <strong>Install App</strong>.</span></div>
-                        </div>
+                        filteredStudents.map((student) => (
+                            <Link key={student.id} href={`/dashboard/student/${student.id}`} className="block bg-white p-4 rounded-xl border border-slate-100 shadow-sm active:scale-[0.98] transition-transform group hover:border-blue-300">
+                                <div className="flex justify-between items-center">
+                                    <div className="flex items-center gap-4">
+                                        <div className={`w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg ${student.archived ? 'bg-slate-100 text-slate-400' : 'bg-blue-100 text-blue-600'}`}>
+                                            {student.full_name.charAt(0)}
+                                        </div>
+                                        <div>
+                                            <h3 className={`font-bold ${student.archived ? 'text-slate-500' : 'text-slate-900'}`}>{student.full_name}</h3>
+                                            <p className="text-xs text-slate-400 truncate max-w-[150px]">{student.email}</p>
+                                        </div>
+                                    </div>
+                                    <div className="flex items-center gap-3">
+                                        {student.unpaid_count > 0 && !student.archived && (
+                                            <div className="bg-red-50 text-red-600 border border-red-100 px-2.5 py-1 rounded-md text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1">
+                                                <AlertCircle size={10} />
+                                                {student.unpaid_count} Unpaid
+                                            </div>
+                                        )}
+                                        <ChevronRight className="text-slate-300 group-hover:text-blue-500 transition-colors" size={20} />
+                                    </div>
+                                </div>
+                            </Link>
+                        ))
                     )}
                 </div>
-                <button onClick={() => setIsInstallOpen(false)} className="w-full mt-6 bg-slate-900 text-white font-bold py-3 rounded-xl">Got it</button>
-            </div>
-        </div>
-      )}
-
-      {/* Settings Menu */}
-      {isSettingsOpen && (
-        <div className="fixed inset-0 z-50 flex justify-end">
-            <div className="absolute inset-0 bg-black/40 backdrop-blur-sm" onClick={() => setIsSettingsOpen(false)} />
-            <div className="relative w-2/3 max-w-sm bg-white h-full shadow-2xl p-6 flex flex-col animate-in slide-in-from-right duration-300">
-                <div className="flex justify-between items-center mb-8">
-                    <h2 className="text-xl font-bold text-slate-900">Settings</h2>
-                    <button onClick={() => setIsSettingsOpen(false)} className="p-2 bg-slate-100 rounded-full text-slate-500 hover:bg-slate-200">
-                        <X size={20} />
-                    </button>
-                </div>
-                <div className="space-y-2">
-                    <Link href="/dashboard/settings/contact" className="flex items-center gap-3 p-4 rounded-xl bg-slate-50 text-slate-700 font-bold hover:bg-blue-50 hover:text-blue-600 transition-colors">
-                        <Mail size={20} /> Contact Support
-                    </Link>
-                    <button onClick={handleLogout} className="w-full flex items-center gap-3 p-4 rounded-xl bg-slate-50 text-slate-700 font-bold hover:bg-slate-100 transition-colors">
-                        <LogOut size={20} /> Sign Out
-                    </button>
-                    <hr className="border-slate-100 my-4" />
-                    <Link href="/dashboard/settings/delete" className="flex items-center gap-3 p-4 rounded-xl bg-red-50 text-red-600 font-bold hover:bg-red-100 transition-colors">
-                        <UserX size={20} /> Delete Account
-                    </Link>
-                </div>
-                <div className="mt-auto text-center text-xs text-slate-400"><p>GoLesson v1.0</p></div>
-            </div>
-        </div>
-      )}
-
-      {/* Top Bar */}
-      <header className="bg-white p-6 border-b border-slate-200 shadow-sm sticky top-0 z-10">
-        <div className="flex flex-col gap-4 mb-4">
-          <div className="flex justify-between items-center">
-             <div>
-                <h1 className="text-2xl font-bold text-slate-900">GoLesson</h1>
-                <p className="text-sm text-slate-500">Hi, {instructorName}</p>
-             </div>
-             <div className="flex items-center gap-2">
-                {/* Profile Pic */}
-                <div className="h-10 w-10 bg-blue-100 rounded-full flex items-center justify-center text-blue-700 font-bold">
-                    {instructorName[0]?.toUpperCase()}
-                </div>
-                {/* Settings Cog (No text) */}
-                <button onClick={() => setIsSettingsOpen(true)} className="h-10 w-10 bg-slate-50 border border-slate-100 rounded-full flex items-center justify-center text-slate-500 hover:bg-slate-100 transition-colors">
-                    <Settings size={20} />
-                </button>
-             </div>
-          </div>
-          
-          {/* NEW: Action Buttons Row (Guide + Install) */}
-          <div className="flex gap-2">
-             <button 
-                onClick={() => setIsGuideOpen(true)}
-                className="flex-1 bg-purple-50 hover:bg-purple-100 border border-purple-100 text-purple-700 py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
-             >
-                <BookOpen size={16} />
-                <span className="text-xs font-bold">App Guide</span>
-             </button>
-             
-             <button 
-                onClick={() => setIsInstallOpen(true)}
-                className="flex-1 bg-blue-50 hover:bg-blue-100 border border-blue-100 text-blue-700 py-2 px-3 rounded-lg flex items-center justify-center gap-2 transition-colors"
-             >
-                <Download size={16} />
-                <span className="text-xs font-bold">Install App</span>
-             </button>
-          </div>
-        </div>
-
-        {/* Search Bar */}
-        <div className="relative">
-            <Search className="absolute left-3 top-3 text-slate-400" size={20} />
-            <input 
-                type="text"
-                placeholder="Search students..."
-                className="w-full pl-10 pr-4 py-3 rounded-xl bg-slate-100 border-none text-slate-900 focus:ring-2 focus:ring-blue-500 outline-none placeholder:text-slate-400"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-            />
-        </div>
-      </header>
-
-      <div className="p-4">
-        {/* Toggle Tabs */}
-        <div className="flex bg-white p-1 rounded-xl border border-slate-100 shadow-sm mb-6">
-            <button onClick={() => setView('active')} className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${view === 'active' ? 'bg-blue-600 text-white shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>
-                <Users size={16} /> Current
-            </button>
-            <button onClick={() => setView('archived')} className={`flex-1 py-2 rounded-lg text-sm font-bold flex items-center justify-center gap-2 transition-all ${view === 'archived' ? 'bg-amber-100 text-amber-700 shadow-md' : 'text-slate-500 hover:bg-slate-50'}`}>
-                <Archive size={16} /> Past Students
-            </button>
-        </div>
-
-        {searchTerm === "" && view === 'active' && (
-            <Link href="/dashboard/invite" className="bg-blue-600 text-white p-4 rounded-xl flex items-center justify-between shadow-lg mb-8 active:scale-95 transition-transform">
-            <div className="flex items-center gap-3">
-                <div className="bg-blue-500 p-2 rounded-lg"><QrCode className="text-white" /></div>
-                <div><h3 className="font-bold">Invite Student</h3><p className="text-xs text-blue-100">Show QR Code</p></div>
-            </div>
-            <ChevronRight />
-            </Link>
+           </>
         )}
-
-        <h2 className="text-lg font-bold text-slate-900 mb-4 px-1">
-            {view === 'active' ? "Active Students" : "Past Students"} ({filteredStudents.length})
-        </h2>
-        
-        <div className="space-y-3">
-          {filteredStudents.length === 0 ? (
-            <div className="text-center py-10">
-               <p className="text-slate-400">{view === 'active' ? "No active students." : "No archived students."}</p>
-            </div>
-          ) : (
-            filteredStudents.map((student) => (
-              <div key={student.id} className="relative group">
-                  <Link href={`/dashboard/student/${student.id}`} className="block bg-white p-4 rounded-xl border border-slate-100 shadow-sm active:bg-blue-50 transition-colors pr-16">
-                    <div className="flex items-center gap-4">
-                        <div className={`relative h-12 w-12 rounded-full flex items-center justify-center ${view === 'active' ? 'bg-slate-100' : 'bg-amber-50'}`}>
-                            <User className={view === 'active' ? 'text-slate-400' : 'text-amber-400'} />
-                            {student.unpaid_count && student.unpaid_count > 0 ? (
-                                <div className="absolute -top-1 -right-1 bg-red-500 text-white text-[10px] font-bold h-5 w-5 flex items-center justify-center rounded-full border-2 border-white">
-                                    {student.unpaid_count}
-                                </div>
-                            ) : null}
-                        </div>
-                        <div>
-                            <div className="flex items-center gap-2">
-                                <h3 className="font-bold text-slate-900 text-lg">{student.full_name}</h3>
-                                {student.unpaid_count && student.unpaid_count > 0 ? (
-                                    <span className="flex items-center gap-1 text-[10px] bg-red-100 text-red-600 px-2 py-0.5 rounded-full font-bold">
-                                        <AlertCircle size={10} /> Unpaid
-                                    </span>
-                                ) : null}
-                            </div>
-                            <p className="text-xs text-slate-500">{student.email}</p>
-                        </div>
-                    </div>
-                  </Link>
-                  <button onClick={(e) => handleDeleteStudent(student.id, e)} className="absolute right-2 top-1/2 -translate-y-1/2 p-3 text-slate-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all z-10" title="Delete Student"><Trash2 size={20} /></button>
-              </div>
-            ))
-          )}
-        </div>
       </div>
     </div>
   );

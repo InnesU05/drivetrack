@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { Loader2, Mail, Lock, UserPlus } from "lucide-react";
-import Link from "next/link"; // Added this import
+import { Loader2, Mail, Lock, User } from "lucide-react";
+import Link from "next/link";
 
 export default function Login() {
   const supabase = createClient();
@@ -12,32 +12,34 @@ export default function Login() {
   
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState(""); // New State for Name
   const [loading, setLoading] = useState(false);
-  const [isSignUp, setIsSignUp] = useState(false); // Toggle between Login and Signup
+  const [isSignUp, setIsSignUp] = useState(false);
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     if (isSignUp) {
-        // Handle Sign Up
-        const { data, error } = await supabase.auth.signUp({
+        // --- SIGN UP LOGIC ---
+        const { error } = await supabase.auth.signUp({
             email,
             password,
             options: {
                 data: {
-                    full_name: email.split("@")[0], // Default name from email
+                    // Save the real name they typed
+                    full_name: fullName, 
+                    role: 'instructor' // Default role
                 }
             }
         });
         if (error) {
             alert(error.message);
         } else {
-            // Since we disabled email confirmation, this logs them in immediately
             router.push("/dashboard");
         }
     } else {
-        // Handle Login
+        // --- LOGIN LOGIC ---
         const { error } = await supabase.auth.signInWithPassword({
             email,
             password,
@@ -64,12 +66,14 @@ export default function Login() {
         {/* Toggle Header */}
         <div className="flex bg-slate-100 p-1 rounded-xl mb-8">
             <button 
+                type="button"
                 onClick={() => setIsSignUp(false)}
                 className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${!isSignUp ? 'bg-white shadow text-slate-900' : 'text-slate-500'}`}
             >
                 Log In
             </button>
             <button 
+                type="button"
                 onClick={() => setIsSignUp(true)}
                 className={`flex-1 py-3 text-sm font-bold rounded-lg transition-all ${isSignUp ? 'bg-white shadow text-blue-600' : 'text-slate-500'}`}
             >
@@ -77,7 +81,27 @@ export default function Login() {
             </button>
         </div>
 
-        <form onSubmit={handleLogin} className="space-y-4">
+        <form onSubmit={handleAuth} className="space-y-4">
+            
+            {/* NAME INPUT (Only shows during Sign Up) */}
+            {isSignUp && (
+                <div className="animate-in fade-in slide-in-from-top-2 duration-300">
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Full Name</label>
+                    <div className="relative">
+                        <User className="absolute left-4 top-3.5 text-slate-400" size={20} />
+                        <input 
+                            required
+                            type="text" 
+                            placeholder="e.g. John Smith"
+                            className="w-full pl-12 pr-4 py-3 rounded-xl bg-slate-50 border border-slate-200 outline-none focus:ring-2 focus:ring-blue-500 font-medium"
+                            value={fullName}
+                            onChange={(e) => setFullName(e.target.value)}
+                        />
+                    </div>
+                </div>
+            )}
+
+            {/* EMAIL INPUT */}
             <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Email Address</label>
                 <div className="relative">
@@ -93,6 +117,7 @@ export default function Login() {
                 </div>
             </div>
 
+            {/* PASSWORD INPUT */}
             <div>
                 <label className="block text-xs font-bold text-slate-500 uppercase mb-2">Password</label>
                 <div className="relative">
@@ -122,7 +147,7 @@ export default function Login() {
                 disabled={loading}
                 className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg flex items-center justify-center gap-2 active:scale-95 transition-transform"
             >
-                {loading ? <Loader2 className="animate-spin" /> : (isSignUp ? "Create Account" : "Sign In")}
+                {loading ? <Loader2 className="animate-spin" /> : (isSignUp ? "Start Free Trial" : "Sign In")}
             </button>
         </form>
       </div>
