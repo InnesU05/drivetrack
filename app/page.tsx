@@ -1,107 +1,168 @@
+"use client"; // <--- Required for the mobile menu to work
+
 import Link from "next/link";
-import { CheckCircle2, ChevronRight, CreditCard, ShieldCheck, Smartphone, Zap } from "lucide-react";
+import { useState } from "react";
+import { 
+  ArrowRight, 
+  Smartphone, 
+  CreditCard, 
+  Shield, 
+  Zap, 
+  Menu, 
+  X 
+} from "lucide-react";
 
 export default function LandingPage() {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
       
-      {/* Navbar */}
-      <nav className="bg-white/80 backdrop-blur-sm border-b border-slate-200 sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
-          <div className="flex items-center gap-2">
-             {/* Beta Badge */}
-             <div className="bg-blue-100 text-blue-700 px-2.5 py-1 rounded-md text-xs font-extrabold uppercase tracking-wider border border-blue-200">
-               Beta
-             </div>
-             <span className="text-xl font-bold text-slate-900 tracking-tight">LearnerLog</span>
-          </div>
-          <div className="flex gap-4">
-             <Link href="/login" className="text-slate-600 hover:text-slate-900 font-medium px-4 py-2">
-               Log In
-             </Link>
-             <Link href="/login" className="bg-slate-900 text-white font-bold px-5 py-2 rounded-full hover:bg-slate-800 transition-colors">
-               Start Free Trial
-             </Link>
-          </div>
-        </div>
-      </nav>
+      {/* --- PROFESSIONAL HEADER --- */}
+      <header className="w-full bg-white border-b border-slate-200 sticky top-0 z-50">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            
+            {/* Logo Section */}
+            <div className="flex items-center gap-2">
+              <Zap className="text-blue-600 fill-blue-600" size={24} />
+              <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
+                LearnerLog
+              </h1>
+            </div>
 
-      {/* Hero Section */}
-      <header className="flex-1 flex flex-col items-center justify-center text-center px-6 py-20 lg:py-32">
-        <div className="inline-flex items-center gap-2 bg-blue-50 text-blue-700 px-4 py-1.5 rounded-full text-sm font-bold mb-6 border border-blue-100 animate-in fade-in slide-in-from-bottom-4 duration-500">
-          <span className="relative flex h-2 w-2">
-            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-            <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-          </span>
-          Accepting Beta Testers
+            {/* Desktop Navigation (Hidden on Mobile) */}
+            <div className="hidden md:flex items-center gap-8">
+              <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">
+                Log In
+              </Link>
+              <Link
+                href="/subscribe"
+                className="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-sm transition-all active:scale-95"
+              >
+                Start Free Trial
+              </Link>
+            </div>
+
+            {/* Mobile Menu Button (Visible ONLY on Mobile) */}
+            <div className="md:hidden">
+              <button
+                onClick={() => setIsMenuOpen(!isMenuOpen)}
+                className="text-slate-600 hover:text-blue-600 p-2"
+              >
+                {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
+              </button>
+            </div>
+          </div>
         </div>
-        
-        <h1 className="text-4xl md:text-6xl font-extrabold text-slate-900 tracking-tight mb-6 max-w-3xl animate-in fade-in slide-in-from-bottom-6 duration-700">
-          The <span className="text-blue-600">Smartest Way</span> to Run Your Driving School.
-        </h1>
-        
-        <p className="text-lg md:text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed animate-in fade-in slide-in-from-bottom-8 duration-700">
-          Ditch the paper diaries. Track student progress, payments, and lesson history in one secure app.
-        </p>
-        
-        <div className="flex flex-col sm:flex-row gap-4 w-full max-w-sm sm:max-w-md animate-in fade-in slide-in-from-bottom-10 duration-1000">
-           <Link href="/login" className="flex-1 bg-blue-600 text-white text-lg font-bold py-4 rounded-xl shadow-xl hover:bg-blue-700 active:scale-95 transition-all flex items-center justify-center gap-2">
-             Start 1-Month Free Trial <ChevronRight />
-           </Link>
-        </div>
-        
-        <p className="text-slate-400 text-sm mt-6">First month free • Cancel anytime</p>
+
+        {/* --- MOBILE MENU DROPDOWN --- */}
+        {/* This slides down when you click the menu icon */}
+        {isMenuOpen && (
+          <div className="md:hidden bg-white border-t border-slate-100 shadow-xl absolute w-full left-0">
+            <div className="px-4 pt-4 pb-6 space-y-3 flex flex-col">
+              <Link 
+                href="/login" 
+                className="block w-full text-center py-3 text-slate-600 font-semibold hover:bg-slate-50 rounded-lg"
+              >
+                Log In
+              </Link>
+              <Link
+                href="/subscribe"
+                className="block w-full text-center py-3 bg-blue-600 text-white font-bold rounded-xl shadow-md active:scale-95"
+              >
+                Start Free Trial
+              </Link>
+            </div>
+          </div>
+        )}
       </header>
 
-      {/* Features Grid */}
-      <section className="bg-white py-20 border-t border-slate-200">
-        <div className="max-w-5xl mx-auto px-6">
-           <div className="grid md:grid-cols-3 gap-10">
-              
-              {/* Feature 1 */}
-              <div className="space-y-4">
-                 <div className="w-12 h-12 bg-blue-100 text-blue-600 rounded-xl flex items-center justify-center mb-2">
-                   <Smartphone size={24} />
-                 </div>
-                 <h3 className="text-xl font-bold text-slate-900">Digital Lesson Logs</h3>
-                 <p className="text-slate-500 leading-relaxed">
-                   Track skills, routes, and readiness score. Give your students a professional progress report after every drive.
-                 </p>
-              </div>
+      <main className="flex-1">
+        {/* --- HERO SECTION --- */}
+        <section className="px-4 py-16 md:py-32 text-center max-w-4xl mx-auto flex flex-col items-center">
+          
+          {/* Beta Badge */}
+          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-8 shadow-sm animate-fade-in-up">
+            <span className="relative flex h-2.5 w-2.5">
+              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
+            </span>
+            Accepting Beta Testers
+          </div>
 
-              {/* Feature 2 */}
-              <div className="space-y-4">
-                 <div className="w-12 h-12 bg-green-100 text-green-600 rounded-xl flex items-center justify-center mb-2">
-                   <CreditCard size={24} />
-                 </div>
-                 <h3 className="text-xl font-bold text-slate-900">Payment Tracking</h3>
-                 <p className="text-slate-500 leading-relaxed">
-                   Never lose track of who owes you money. Mark lessons as Paid/Unpaid and see instant debt alerts on your dashboard.
-                 </p>
-              </div>
+          {/* Main Headline */}
+          <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 leading-[1.1] mb-6 tracking-tight">
+            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">Smartest Way</span> <br className="hidden sm:block"/> to Run Your Driving School.
+          </h2>
 
-              {/* Feature 3 */}
-              <div className="space-y-4">
-                 <div className="w-12 h-12 bg-purple-100 text-purple-600 rounded-xl flex items-center justify-center mb-2">
-                   <ShieldCheck size={24} />
-                 </div>
-                 <h3 className="text-xl font-bold text-slate-900">Secure & Private</h3>
-                 <p className="text-slate-500 leading-relaxed">
-                   Your data is yours. We use enterprise-grade encryption to keep your student lists and contact details safe.
-                 </p>
-              </div>
+          {/* Subtitle */}
+          <p className="text-lg sm:text-xl text-slate-600 mb-10 leading-relaxed max-w-2xl mx-auto">
+            Ditch the paper diaries. Track student progress, payments, and lesson history in one secure app.
+          </p>
 
-           </div>
+          {/* Main CTA Button */}
+          <div className="flex flex-col w-full sm:w-auto px-4 sm:px-0">
+            <Link
+                href="/subscribe"
+                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 px-8 rounded-2xl shadow-lg shadow-blue-600/20 transition-all active:scale-95 hover:-translate-y-1"
+            >
+                Start 1-Month Free Trial <ArrowRight size={22} />
+            </Link>
+            <p className="text-sm text-slate-400 mt-5">
+                No credit card required to sign up. Cancel anytime.
+            </p>
+          </div>
+        </section>
+
+        {/* --- FEATURES SECTION --- */}
+        <section className="px-6 py-20 bg-white border-t border-slate-100">
+            <div className="max-w-md mx-auto md:max-w-6xl grid grid-cols-1 md:grid-cols-3 gap-12">
+                
+                {/* Feature 1 */}
+                <div className="flex flex-col items-center text-center p-6 rounded-3xl hover:bg-slate-50 transition-colors">
+                    <div className="w-14 h-14 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-blue-100">
+                        <Smartphone size={28} strokeWidth={2} />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">Digital Lesson Logs</h3>
+                    <p className="text-slate-600 leading-relaxed">
+                        Track skills, routes, and readiness scores. Give your students a professional progress report after every drive.
+                    </p>
+                </div>
+
+                {/* Feature 2 */}
+                <div className="flex flex-col items-center text-center p-6 rounded-3xl hover:bg-slate-50 transition-colors">
+                    <div className="w-14 h-14 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-emerald-100">
+                        <CreditCard size={28} strokeWidth={2} />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">Payment Tracking</h3>
+                    <p className="text-slate-600 leading-relaxed">
+                        Never lose track of who owes you money. Mark lessons as Paid/Unpaid and see instant debt alerts.
+                    </p>
+                </div>
+
+                {/* Feature 3 */}
+                <div className="flex flex-col items-center text-center p-6 rounded-3xl hover:bg-slate-50 transition-colors">
+                    <div className="w-14 h-14 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm border border-purple-100">
+                        <Shield size={28} strokeWidth={2} />
+                    </div>
+                    <h3 className="text-xl font-bold text-slate-900 mb-3">Secure & Private</h3>
+                    <p className="text-slate-600 leading-relaxed">
+                        Your data is yours. We use enterprise-grade encryption to keep your student lists and contact details safe.
+                    </p>
+                </div>
+
+            </div>
+        </section>
+      </main>
+
+      {/* --- FOOTER --- */}
+      <footer className="py-10 text-center bg-white border-t border-slate-100">
+        <div className="flex items-center justify-center gap-2 mb-4 opacity-50">
+            <Zap size={20} />
+            <span className="font-bold text-lg">LearnerLog</span>
         </div>
-      </section>
-
-      {/* Footer */}
-      <footer className="bg-slate-50 border-t border-slate-200 py-12 text-center">
-        <p className="text-slate-400 text-sm mb-4">© 2026 LearnerLog. All rights reserved.</p>
-        <div className="flex justify-center gap-6 text-xs text-slate-400 underline">
-            <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
-            <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>
-        </div>
+        <p className="text-slate-400 text-sm">© {new Date().getFullYear()} LearnerLog. All rights reserved.</p>
       </footer>
     </div>
   );
