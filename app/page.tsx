@@ -92,12 +92,13 @@ export default function LandingPage() {
         </div>
       </section>
 
-     {/* Footer */}
+   {/* Footer */}
 <footer className="bg-slate-50 border-t border-slate-200 py-12 text-center">
-    <p className="text-slate-400 text-sm mb-2">© 2026 DriveTrack. All rights reserved.</p>
-    <Link href="/privacy" className="text-slate-400 hover:text-slate-600 text-xs underline">
-        Privacy Policy
-    </Link>
+    <p className="text-slate-400 text-sm mb-4">© 2026 DriveTrack. All rights reserved.</p>
+    <div className="flex justify-center gap-6 text-xs text-slate-400 underline">
+        <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
+        <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>
+    </div>
 </footer>
     </div>
   );
