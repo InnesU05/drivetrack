@@ -47,6 +47,16 @@ export default function Dashboard() {
         return;
       }
       
+      // INSTRUCTOR PAYMENT CHECK
+// If they are an instructor AND their status is NOT active or trialing...
+if (profile.role === 'instructor') {
+    const status = profile.subscription_status;
+    if (status !== 'active' && status !== 'trialing') {
+        router.replace("/subscribe"); // Send them to paywall
+        return;
+    }
+}
+
       setInstructorName(user.user_metadata.full_name || "Instructor");
 
       const { data: studentData } = await supabase
