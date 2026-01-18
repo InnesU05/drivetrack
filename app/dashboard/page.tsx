@@ -192,7 +192,7 @@ export default function Dashboard() {
                         <UserX size={20} /> Delete Account
                     </Link>
                 </div>
-                <div className="mt-auto text-center text-xs text-slate-400"><p>DriveTrack v1.0</p></div>
+                <div className="mt-auto text-center text-xs text-slate-400"><p>GoLesson v1.0</p></div>
             </div>
         </div>
       )}
@@ -202,7 +202,7 @@ export default function Dashboard() {
         <div className="flex flex-col gap-4 mb-4">
           <div className="flex justify-between items-center">
              <div>
-                <h1 className="text-2xl font-bold text-slate-900">DriveTrack</h1>
+                <h1 className="text-2xl font-bold text-slate-900">GoLesson</h1>
                 <p className="text-sm text-slate-500">Hi, {instructorName}</p>
              </div>
              <div className="flex items-center gap-2">

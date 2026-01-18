@@ -1,6 +1,6 @@
 {
-  "name": "DriveTrack Pro",
-  "short_name": "DriveTrack",
+  "name": "GoLesson",
+  "short_name": "GoLesson",
   "description": "Driving Instructor Tracking App",
   "start_url": "/",
   "display": "standalone",

@@ -10,7 +10,7 @@ export default function LandingPage() {
         <div className="max-w-5xl mx-auto px-6 py-4 flex justify-between items-center">
           <div className="flex items-center gap-2">
              <div className="bg-blue-600 text-white p-1.5 rounded-lg font-bold">DT</div>
-             <span className="text-xl font-bold text-slate-900 tracking-tight">DriveTrack</span>
+             <span className="text-xl font-bold text-slate-900 tracking-tight">GoLesson</span>
           </div>
           <div className="flex gap-4">
              <Link href="/login" className="text-slate-600 hover:text-slate-900 font-medium px-4 py-2">
@@ -94,7 +94,7 @@ export default function LandingPage() {
 
    {/* Footer */}
 <footer className="bg-slate-50 border-t border-slate-200 py-12 text-center">
-    <p className="text-slate-400 text-sm mb-4">© 2026 DriveTrack. All rights reserved.</p>
+    <p className="text-slate-400 text-sm mb-4">© 2026 GoLesson. All rights reserved.</p>
     <div className="flex justify-center gap-6 text-xs text-slate-400 underline">
         <Link href="/privacy" className="hover:text-slate-600">Privacy Policy</Link>
         <Link href="/terms" className="hover:text-slate-600">Terms of Service</Link>

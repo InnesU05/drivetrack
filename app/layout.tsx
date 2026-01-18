@@ -5,13 +5,15 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "DriveTrack Pro",
-  description: "Track driving lessons with ease",
+  title: "GoLesson", // <--- CHANGE
+  description: "The complete driving lesson tracker.",
   manifest: "/manifest.json",
-  icons: {
-    icon: "/icon-192.png", // Favicon for browser tabs
-    apple: "/icon-192.png", // The special icon for iPhones/iPads
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: "GoLesson", // <--- CHANGE
   },
+  // ... keep the rest the same
 };
 
 export const viewport: Viewport = {
