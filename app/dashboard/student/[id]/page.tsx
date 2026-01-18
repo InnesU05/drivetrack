@@ -19,9 +19,19 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(true);
   const [totalHours, setTotalHours] = useState(0);
   const [readiness, setReadiness] = useState(0);
+  
+  // NEW: State to check if viewer is the instructor
+  const [isInstructor, setIsInstructor] = useState(false);
 
   useEffect(() => {
     async function loadData() {
+      // Check who is looking at the page
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        // If the logged-in user is NOT the student, they must be the instructor
+        setIsInstructor(user.id !== studentId);
+      }
+
       const { data: studentData } = await supabase.from("profiles").select("*").eq("id", studentId).single();
       setStudent(studentData);
 
@@ -51,18 +61,17 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   }, [studentId]);
 
   const toggleArchive = async () => {
+    if (!isInstructor) return; // Guard
     const newValue = !student.archived;
     const confirmMessage = newValue 
-        ? "Move this student to 'Past Students'? They will be hidden from your main dashboard." 
+        ? "Move this student to 'Past Students'?" 
         : "Restore this student to 'Active'?";
     
     if (!confirm(confirmMessage)) return;
-
     const { error } = await supabase.from("profiles").update({ archived: newValue }).eq("id", studentId);
-    
     if (!error) {
         setStudent({ ...student, archived: newValue });
-        router.refresh(); // Refresh to update the dashboard cache
+        router.refresh();
     }
   };
 
@@ -79,6 +88,9 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
 
   const togglePayment = async (lessonId: string, currentStatus: boolean, e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
+    // Only instructor can toggle payment
+    if (!isInstructor) return; 
+
     const updatedLessons = lessons.map(l => l.id === lessonId ? { ...l, is_paid: !currentStatus } : l);
     setLessons(updatedLessons);
     await supabase.from("lessons").update({ is_paid: !currentStatus }).eq("id", lessonId);
@@ -91,25 +103,40 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
       <div className="bg-white p-6 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
         <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-4">
-                <Link href="/dashboard" className="text-slate-400 hover:text-slate-600"><ArrowLeft /></Link>
+                {/* Only show Back button if Instructor (Student has nowhere to go back to) */}
+                {isInstructor && (
+                    <Link href="/dashboard" className="text-slate-400 hover:text-slate-600"><ArrowLeft /></Link>
+                )}
                 <div>
                     <h1 className="text-xl font-bold text-slate-900 truncate">{student?.full_name}</h1>
                     {student?.archived && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">ARCHIVED</span>}
                 </div>
             </div>
-            {/* Archive / Restore Button */}
-            <button 
-                onClick={toggleArchive}
-                className="text-slate-400 hover:text-blue-600 p-2"
-                title={student?.archived ? "Restore Student" : "Archive Student"}
-            >
-                {student?.archived ? <RotateCcw size={20} /> : <Archive size={20} />}
-            </button>
+            
+            {/* HIDE Archive Button for Students */}
+            {isInstructor && (
+                <button 
+                    onClick={toggleArchive}
+                    className="text-slate-400 hover:text-blue-600 p-2"
+                >
+                    {student?.archived ? <RotateCcw size={20} /> : <Archive size={20} />}
+                </button>
+            )}
+            
+            {/* Show Sign Out for Students (Since they don't have the dashboard settings) */}
+            {!isInstructor && (
+                <button onClick={() => { supabase.auth.signOut(); router.push("/login"); }} className="text-slate-400 hover:text-red-500 text-xs font-bold border border-slate-200 px-3 py-2 rounded-lg">
+                    Sign Out
+                </button>
+            )}
         </div>
 
-        <Link href={`/dashboard/student/${studentId}/log`} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all">
-            <Plus size={24} /> Log New Lesson
-        </Link>
+        {/* HIDE Log Lesson Button for Students */}
+        {isInstructor && (
+            <Link href={`/dashboard/student/${studentId}/log`} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all">
+                <Plus size={24} /> Log New Lesson
+            </Link>
+        )}
       </div>
 
       <div className="p-4 space-y-4">
@@ -137,40 +164,74 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
             </div>
         ) : (
             lessons.map((lesson) => (
-                <Link key={lesson.id} href={`/dashboard/lesson/${lesson.id}`} className="block bg-white p-5 rounded-xl border border-slate-100 shadow-sm relative group active:scale-[0.99] transition-transform pb-12">
-                    <div className="flex justify-between items-start mb-3">
-                        <div className="flex flex-col">
-                            <div className="flex items-center gap-2 text-blue-600 font-bold text-sm">
-                                <Calendar size={16} />
-                                {new Date(lesson.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                // Only make it a Link (Editable) if it is the Instructor
+                <div key={lesson.id} className="relative">
+                    {isInstructor ? (
+                         <Link href={`/dashboard/lesson/${lesson.id}`} className="block bg-white p-5 rounded-xl border border-slate-100 shadow-sm relative group active:scale-[0.99] transition-transform pb-12">
+                            <LessonContent lesson={lesson} isInstructor={isInstructor} togglePayment={togglePayment} />
+                            <div className="absolute bottom-4 left-5 text-[10px] text-slate-300 font-bold italic flex items-center gap-1 group-hover:text-blue-400 transition-colors">
+                                <Edit3 size={10} /> Click to edit
                             </div>
-                            <span className="text-xs text-slate-400 mt-1 font-medium">{lesson.duration || 1} Hr Lesson</span>
+                            <button onClick={(e) => handleDeleteLesson(lesson.id, e)} className="absolute bottom-3 right-3 text-slate-300 hover:text-red-500 p-2 z-10"><Trash2 size={18} /></button>
+                         </Link>
+                    ) : (
+                        // Read-Only View for Students
+                        <div className="block bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
+                            <LessonContent lesson={lesson} isInstructor={isInstructor} togglePayment={togglePayment} />
                         </div>
-                        
-                        <button onClick={(e) => togglePayment(lesson.id, lesson.is_paid, e)} className={`relative w-24 h-9 rounded-full transition-colors duration-200 ease-in-out flex items-center px-1 shadow-inner ${lesson.is_paid ? 'bg-green-500' : 'bg-red-400'}`}>
-                            <div className={`w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-200 ${lesson.is_paid ? 'translate-x-[3.75rem]' : 'translate-x-0'}`} />
-                            <span className={`absolute text-[10px] font-bold text-white uppercase tracking-wider ${lesson.is_paid ? 'left-3' : 'right-3'}`}>{lesson.is_paid ? 'Paid' : 'Unpaid'}</span>
-                        </button>
-                    </div>
-
-                    <div className="space-y-2 mb-2">
-                        {lesson.skills_report && Object.entries(lesson.skills_report).slice(0, 3).map(([skill, score]: any) => (
-                            <div key={skill} className="flex justify-between text-sm text-slate-600">
-                                <span>{skill}</span>
-                                <div className="flex text-amber-400">{[...Array(score)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}</div>
-                            </div>
-                        ))}
-                    </div>
-
-                    <div className="absolute bottom-4 left-5 text-[10px] text-slate-300 font-bold italic flex items-center gap-1 group-hover:text-blue-400 transition-colors">
-                        <Edit3 size={10} /> Click to edit
-                    </div>
-
-                    <button onClick={(e) => handleDeleteLesson(lesson.id, e)} className="absolute bottom-3 right-3 text-slate-300 hover:text-red-500 p-2 z-10"><Trash2 size={18} /></button>
-                </Link>
+                    )}
+                </div>
             ))
         )}
       </div>
     </div>
   );
+}
+
+// Helper Component to avoid code duplication
+function LessonContent({ lesson, isInstructor, togglePayment }: any) {
+    return (
+        <>
+            <div className="flex justify-between items-start mb-3">
+                <div className="flex flex-col">
+                    <div className="flex items-center gap-2 text-blue-600 font-bold text-sm">
+                        <Calendar size={16} />
+                        {new Date(lesson.date).toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' })}
+                    </div>
+                    <span className="text-xs text-slate-400 mt-1 font-medium">{lesson.duration || 1} Hr Lesson</span>
+                </div>
+                
+                {/* Students see a badge, Instructors see the toggle button */}
+                {isInstructor ? (
+                    <button onClick={(e) => togglePayment(lesson.id, lesson.is_paid, e)} className={`relative w-24 h-9 rounded-full transition-colors duration-200 ease-in-out flex items-center px-1 shadow-inner ${lesson.is_paid ? 'bg-green-500' : 'bg-red-400'}`}>
+                        <div className={`w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-200 ${lesson.is_paid ? 'translate-x-[3.75rem]' : 'translate-x-0'}`} />
+                        <span className={`absolute text-[10px] font-bold text-white uppercase tracking-wider ${lesson.is_paid ? 'left-3' : 'right-3'}`}>{lesson.is_paid ? 'Paid' : 'Unpaid'}</span>
+                    </button>
+                ) : (
+                    <div className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider ${lesson.is_paid ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                        {lesson.is_paid ? 'Paid' : 'Unpaid'}
+                    </div>
+                )}
+            </div>
+
+            <div className="space-y-2 mb-4">
+                {lesson.skills_report && Object.entries(lesson.skills_report).slice(0, 3).map(([skill, score]: any) => (
+                    <div key={skill} className="flex justify-between text-sm text-slate-600">
+                        <span>{skill}</span>
+                        <div className="flex text-amber-400">{[...Array(score)].map((_, i) => <Star key={i} size={12} fill="currentColor" />)}</div>
+                    </div>
+                ))}
+            </div>
+
+            {/* NEW: Display Notes with CSS Fix */}
+            {lesson.notes && (
+                <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 mt-3 w-full">
+                    <p className="text-xs text-slate-500 font-bold uppercase mb-1">Instructor Feedback</p>
+                    <p className="text-sm text-slate-700 italic leading-relaxed whitespace-pre-wrap break-words">
+                        "{lesson.notes}"
+                    </p>
+                </div>
+            )}
+        </>
+    )
 }

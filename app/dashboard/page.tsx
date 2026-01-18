@@ -30,10 +30,24 @@ export default function Dashboard() {
   const [isGuideOpen, setIsGuideOpen] = useState(false); // NEW: Guide State
   const [installTab, setInstallTab] = useState<'ios' | 'android'>('ios');
 
-  useEffect(() => {
+ useEffect(() => {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) { router.push("/login"); return; }
+      
+      // 1. Get the current user's profile to check their ROLE
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .single();
+
+      // --- NEW LOGIC: STUDENT REDIRECT ---
+      if (profile && profile.role === 'student') {
+        router.replace(`/dashboard/student/${user.id}`);
+        return;
+      }
+      // -----------------------------------
       
       setInstructorName(user.user_metadata.full_name || "Instructor");
 
@@ -103,7 +117,7 @@ export default function Dashboard() {
                 <div className="space-y-4">
                     <div className="flex gap-4">
                         <div className="mt-1"><div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-xs font-bold text-slate-500">1</div></div>
-                        <div><h3 className="font-bold text-slate-800">Invite a Student</h3><p className="text-sm text-slate-500">Click the blue "Invite Student" card or use the QR code.</p></div>
+                        <div><h3 className="font-bold text-slate-800">Invite a Student</h3><p className="text-sm text-slate-500">Click the blue "Invite Student" card to use the QR code.</p></div>
                     </div>
                     <div className="flex gap-4">
                         <div className="mt-1"><div className="w-6 h-6 bg-slate-100 rounded-full flex items-center justify-center text-xs font-bold text-slate-500">2</div></div>
