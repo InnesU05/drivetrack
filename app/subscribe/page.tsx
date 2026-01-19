@@ -40,7 +40,7 @@ export default function SubscribePage() {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({
         // 🔴🔴 PASTE YOUR STRIPE PRICE ID BELOW 🔴🔴
-        priceId: "price_1QmqUuK1i3...", 
+        priceId: "price_1Sr7MqRs3oN29YkwmZb6caAp", 
         userId: user.id,
         email: user.email,
       }),
