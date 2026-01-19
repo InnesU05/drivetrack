@@ -26,7 +26,7 @@ export default function InstallApp() {
             </div>
             <h2 className="text-2xl font-bold text-slate-900">Get the App Experience</h2>
             <p className="text-slate-500">
-                Add LearnerLog to your home screen for faster access, no address bar, and a full-screen experience.
+                Add ADIbase to your home screen for faster access, no address bar, and a full-screen experience.
             </p>
         </div>
 

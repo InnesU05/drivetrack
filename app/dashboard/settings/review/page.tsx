@@ -53,7 +53,7 @@ export default function LeaveReview() {
                   <CheckCircle2 size={64} />
               </div>
               <h2 className="text-3xl font-extrabold text-slate-900 mb-2">Thank You!</h2>
-              <p className="text-slate-500">Your feedback helps us improve LearnerLog.</p>
+              <p className="text-slate-500">Your feedback helps us improve ADIbase.</p>
           </div>
       );
   }
@@ -74,7 +74,7 @@ export default function LeaveReview() {
                 <Star size={40} className="fill-amber-400" />
             </div>
             <h2 className="text-2xl font-bold text-slate-900">How are we doing?</h2>
-            <p className="text-slate-500 text-sm mt-2">Rate your experience with LearnerLog.</p>
+            <p className="text-slate-500 text-sm mt-2">Rate your experience with ADIbase.</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200">

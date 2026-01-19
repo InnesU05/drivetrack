@@ -15,7 +15,7 @@ export default function LandingPage() {
             <div className="flex items-center gap-2">
               <Car className="text-blue-600 fill-blue-600" size={26} />
               <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">
-                LearnerLog
+                <span className="text-blue-600">ADI</span><span className="text-purple-600">base</span>
               </h1>
             </div>
 
@@ -107,7 +107,7 @@ export default function LandingPage() {
       </main>
 
       <footer className="py-8 text-center bg-white border-t border-slate-100">
-        <p className="text-slate-400 text-xs">© {new Date().getFullYear()} LearnerLog.</p>
+        <p className="text-slate-400 text-xs">© {new Date().getFullYear()} ADIbase.</p>
       </footer>
     </div>
   );

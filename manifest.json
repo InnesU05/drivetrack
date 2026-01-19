@@ -1,6 +1,6 @@
 {
-  "name": "LearnerLog",
-  "short_name": "LearnerLog",
+  "name": "ADIbase",
+  "short_name": "ADIbase",
   "description": "Driving Instructor Tracking App",
   "start_url": "/",
   "display": "standalone",

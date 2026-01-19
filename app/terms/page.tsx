@@ -20,10 +20,10 @@ export default function TermsOfService() {
           <p className="font-bold text-slate-900">Last Updated: January 2026</p>
           
           <h3>1. Acceptance of Terms</h3>
-          <p>By creating an account on LearnerLog, you agree to these terms. If you do not agree, you must not use the app.</p>
+          <p>By creating an account on ADIbase, you agree to these terms. If you do not agree, you must not use the app.</p>
 
           <h3>2. Educational Aid Only</h3>
-          <p>LearnerLog is a progress tracking tool. The "Readiness Score" and skill logs are estimates based on instructor input. They do not guarantee a pass result in any official driving test.</p>
+          <p>ADIbase is a progress tracking tool. The "Readiness Score" and skill logs are estimates based on instructor input. They do not guarantee a pass result in any official driving test.</p>
 
           <h3>3. Data Loss & Availability</h3>
           <p>While we back up data regularly, we are not liable for any data loss or service downtime. We recommend instructors keep a secondary record of official payments.</p>

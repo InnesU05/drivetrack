@@ -18,7 +18,7 @@ export default function StudentInstallPage({ params }: { params: Promise<{ id: s
             <ArrowLeft size={16} /> Back to Dashboard
           </Link>
           <h1 className="text-2xl font-extrabold text-slate-900 mb-2">Install App</h1>
-          <p className="text-slate-500">Add LearnerLog to your home screen for quick access.</p>
+          <p className="text-slate-500">Add ADIbase to your home screen for quick access.</p>
         </div>
 
         <div className="space-y-4">

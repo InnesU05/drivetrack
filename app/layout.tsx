@@ -5,14 +5,14 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://learnerlogapp.vercel.app"),
-  title: "LearnerLog", 
+  metadataBase: new URL("https://adibaseapp.vercel.app"),
+  title: "ADIbase", 
   description: "The complete driving lesson tracker.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "default",
-    title: "LearnerLog", 
+    title: "ADIbase", 
   },
   
 };

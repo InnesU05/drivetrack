@@ -122,7 +122,7 @@ function DashboardContent() {
       <div className="bg-white p-6 border-b border-slate-200 sticky top-0 z-10 shadow-sm flex justify-between items-center">
         <div>
             <h1 className="text-xl font-extrabold text-slate-900">Hello, {instructorName.split(' ')[0]} 👋</h1>
-            <p className="text-xs text-slate-500 font-medium">LearnerLog Instructor</p>
+            <p className="text-xs text-slate-500 font-medium">ADIbase Instructor</p>
         </div>
         <div className="flex items-center gap-2">
             <Link href="/dashboard/settings" className="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded-lg"><Settings size={20} /></Link>

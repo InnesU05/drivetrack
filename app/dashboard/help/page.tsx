@@ -21,7 +21,7 @@ export default function HelpPage() {
             </div>
             <h2 className="text-lg font-bold text-slate-900 mb-2">Guides Coming Soon</h2>
             <p className="text-slate-500 text-sm">
-                We are currently building video tutorials to help you get the most out of LearnerLog.
+                We are currently building video tutorials to help you get the most out of ADIbase.
             </p>
         </div>
 
