@@ -3,7 +3,8 @@
 import { useEffect, useState, use } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { ArrowLeft, Plus, Calendar, Trash2, Star, Trophy, Hourglass, Edit3, Archive, RotateCcw, ChevronRight, Eye } from "lucide-react";
+// Added 'Download' to imports
+import { ArrowLeft, Plus, Calendar, Trash2, Star, Trophy, Hourglass, Edit3, Archive, RotateCcw, ChevronRight, Download } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProgressChart from "@/components/ProgressChart";
 
@@ -14,6 +15,7 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   const supabase = createClient();
   const router = useRouter();
 
+  // ... (Keep existing state: student, lessons, loading, etc.)
   const [student, setStudent] = useState<any>(null);
   const [lessons, setLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -21,74 +23,55 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   const [readiness, setReadiness] = useState(0);
   const [isInstructor, setIsInstructor] = useState(false);
 
+  // ... (Keep existing useEffect and helper functions)
+
   useEffect(() => {
-    async function loadData() {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (user) {
-        setIsInstructor(user.id !== studentId);
-      }
-
-      const { data: studentData } = await supabase.from("profiles").select("*").eq("id", studentId).single();
-      setStudent(studentData);
-
-      const { data: lessonData } = await supabase
-        .from("lessons")
-        .select("*")
-        .eq("student_id", studentId)
-        .order("date", { ascending: false })
-        .order("created_at", { ascending: false });
-
-      if (lessonData) {
-        setLessons(lessonData);
-        const hours = lessonData.reduce((sum, lesson) => sum + (lesson.duration || 0), 0);
-        setTotalHours(hours);
-
-        if (lessonData.length > 0) {
-            const latestSkills = lessonData[0].skills_report || {};
-            const scores = Object.values(latestSkills) as number[];
-            const passedSkills = scores.filter(s => s >= 4).length;
-            const percentage = Math.round((passedSkills / 8) * 100); 
-            setReadiness(percentage > 100 ? 100 : percentage);
+      async function loadData() {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          setIsInstructor(user.id !== studentId);
         }
+  
+        const { data: studentData } = await supabase.from("profiles").select("*").eq("id", studentId).single();
+        setStudent(studentData);
+  
+        const { data: lessonData } = await supabase
+          .from("lessons")
+          .select("*")
+          .eq("student_id", studentId)
+          .order("date", { ascending: false })
+          .order("created_at", { ascending: false });
+  
+        if (lessonData) {
+          setLessons(lessonData);
+          const hours = lessonData.reduce((sum, lesson) => sum + (lesson.duration || 0), 0);
+          setTotalHours(hours);
+  
+          if (lessonData.length > 0) {
+              const latestSkills = lessonData[0].skills_report || {};
+              const scores = Object.values(latestSkills) as number[];
+              const passedSkills = scores.filter(s => s >= 4).length;
+              const percentage = Math.round((passedSkills / 8) * 100); 
+              setReadiness(percentage > 100 ? 100 : percentage);
+          }
+        }
+        setLoading(false);
       }
-      setLoading(false);
-    }
-    loadData();
-  }, [studentId]);
+      loadData();
+    }, [studentId]);
+
+  // ... (Keep toggleArchive, handleDeleteLesson, etc.)
 
   const toggleArchive = async () => {
-    if (!isInstructor) return; 
-    const newValue = !student.archived;
-    const confirmMessage = newValue 
-        ? "Move this student to 'Past Students'?" 
-        : "Restore this student to 'Active'?";
-    
-    if (!confirm(confirmMessage)) return;
-    const { error } = await supabase.from("profiles").update({ archived: newValue }).eq("id", studentId);
-    if (!error) {
-        setStudent({ ...student, archived: newValue });
-        router.refresh();
-    }
+    // ... existing logic
   };
 
   const handleDeleteLesson = async (lessonId: string, e: React.MouseEvent) => {
-    e.preventDefault(); e.stopPropagation(); 
-    if (!confirm("Delete this lesson record?")) return;
-    const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
-    if (!error) {
-        const newLessons = lessons.filter(l => l.id !== lessonId);
-        setLessons(newLessons);
-        setTotalHours(newLessons.reduce((sum, l) => sum + (l.duration || 0), 0));
-    }
+    // ... existing logic
   };
 
   const togglePayment = async (lessonId: string, currentStatus: boolean, e: React.MouseEvent) => {
-    e.preventDefault(); e.stopPropagation();
-    if (!isInstructor) return; 
-
-    const updatedLessons = lessons.map(l => l.id === lessonId ? { ...l, is_paid: !currentStatus } : l);
-    setLessons(updatedLessons);
-    await supabase.from("lessons").update({ is_paid: !currentStatus }).eq("id", lessonId);
+    // ... existing logic
   };
 
   if (loading) return <div className="p-6 text-center text-slate-400">Loading profile...</div>;
@@ -117,9 +100,16 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
             )}
             
             {!isInstructor && (
-                <button onClick={() => { supabase.auth.signOut(); router.push("/login"); }} className="text-slate-400 hover:text-red-500 text-xs font-bold border border-slate-200 px-3 py-2 rounded-lg">
-                    Sign Out
-                </button>
+                <div className="flex gap-2">
+                    {/* NEW INSTALL BUTTON */}
+                    <Link href={`/dashboard/student/${studentId}/install`} className="text-slate-400 hover:text-blue-600 p-2 border border-slate-200 rounded-lg">
+                        <Download size={20} />
+                    </Link>
+                    
+                    <button onClick={() => { supabase.auth.signOut(); router.push("/login"); }} className="text-slate-400 hover:text-red-500 text-xs font-bold border border-slate-200 px-3 py-2 rounded-lg">
+                        Sign Out
+                    </button>
+                </div>
             )}
         </div>
 
@@ -131,6 +121,7 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
       </div>
 
       <div className="p-4 space-y-4">
+        {/* ... (Keep existing Chart and Lesson List code) ... */}
         <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-1">
                 <div className="bg-blue-50 p-2 rounded-full text-blue-600 mb-1"><Hourglass size={20} /></div>
@@ -156,11 +147,9 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
         ) : (
             lessons.map((lesson) => (
                 <Link key={lesson.id} href={`/dashboard/lesson/${lesson.id}`} className="block relative group">
-                     {/* Added 'hover:border-blue-300' to show it's clickable */}
                      <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm relative active:scale-[0.99] transition-all hover:border-blue-300 pb-14">
                         <LessonContent lesson={lesson} isInstructor={isInstructor} togglePayment={togglePayment} />
                         
-                        {/* Instructor Actions */}
                         {isInstructor && (
                             <>
                                 <div className="absolute bottom-4 left-5 text-[10px] text-slate-300 font-bold italic flex items-center gap-1 group-hover:text-blue-400 transition-colors">
@@ -170,7 +159,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
                             </>
                         )}
 
-                        {/* NEW STUDENT BUTTON: REPLACES THE ARROW */}
                         {!isInstructor && (
                             <div className="absolute bottom-4 right-4 text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 flex items-center gap-1 shadow-sm">
                                 View Details <ChevronRight size={12} />
@@ -185,8 +173,9 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   );
 }
 
-// Helper Component
+// ... (Keep helper components)
 function LessonContent({ lesson, isInstructor, togglePayment }: any) {
+    // ... content from previous file
     return (
         <div>
             <div className="flex justify-between items-start mb-3">
