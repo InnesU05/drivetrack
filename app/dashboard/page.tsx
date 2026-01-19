@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, Suspense } from "react"; // <--- Added Suspense
+import { useEffect, useState, Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
@@ -8,11 +8,10 @@ import {
   Search, Users, ChevronRight, QrCode, LogOut, Loader2, Archive, CheckCircle2, AlertCircle, Settings, BookOpen, Download
 } from "lucide-react";
 
-// --- 1. THE LOGIC COMPONENT (Wrapped safely below) ---
 function DashboardContent() {
   const supabase = createClient();
   const router = useRouter();
-  const searchParams = useSearchParams(); // <--- Safe to use here now
+  const searchParams = useSearchParams();
 
   const [loading, setLoading] = useState(true);
   const [isSyncing, setIsSyncing] = useState(false);
@@ -29,11 +28,13 @@ function DashboardContent() {
       
       let { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
 
-      // --- HANDLE RACE CONDITION ---
+      // --- 1. HANDLE RACE CONDITION ---
       const justPaid = searchParams.get("payment") === "success";
 
+      // If just paid but DB says inactive, wait/poll
       if (justPaid && profile?.role === 'instructor' && profile?.subscription_status !== 'active' && profile?.subscription_status !== 'trialing') {
           setIsSyncing(true);
+          
           const interval = setInterval(async () => {
               const { data: newProfile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
               if (newProfile?.subscription_status === 'active' || newProfile?.subscription_status === 'trialing') {
@@ -43,11 +44,18 @@ function DashboardContent() {
                   window.location.reload(); 
               }
           }, 2000);
-          setTimeout(() => { clearInterval(interval); setIsSyncing(false); }, 15000);
-          return;
+          
+          // SAFETY TIMEOUT: If webhook fails, let them in anyway after 10s
+          setTimeout(() => { 
+              clearInterval(interval); 
+              setIsSyncing(false); 
+              setLoading(false); // <--- THIS WAS MISSING BEFORE
+          }, 10000);
+          return; 
       }
 
-      // --- NORMAL CHECK ---
+      // --- 2. NORMAL CHECK ---
+      // If NOT polling, and still inactive, kick them out
       if (!justPaid && profile?.role === 'instructor') {
           if (profile.subscription_status !== 'active' && profile.subscription_status !== 'trialing') {
               router.replace("/subscribe");
@@ -60,7 +68,7 @@ function DashboardContent() {
         return;
       }
 
-      // --- LOAD DATA ---
+      // --- 3. LOAD DATA ---
       setInstructorName(user.user_metadata.full_name || "Instructor");
 
       const { data: studentData } = await supabase
@@ -99,7 +107,7 @@ function DashboardContent() {
                   <CheckCircle2 size={48} />
               </div>
               <h1 className="text-2xl font-extrabold text-slate-900 mb-2">Payment Successful!</h1>
-              <p className="text-slate-500 mb-8 max-w-xs mx-auto">Activating your account. This takes a few seconds...</p>
+              <p className="text-slate-500 mb-8 max-w-xs mx-auto">Activating your account...</p>
               <div className="flex items-center gap-2 text-slate-400 font-bold text-sm">
                   <Loader2 className="animate-spin" /> Finalizing setup...
               </div>
@@ -191,7 +199,6 @@ function DashboardContent() {
   );
 }
 
-// --- 2. THE MAIN EXPORT (Wraps logic in Suspense) ---
 export default function Dashboard() {
   return (
     <Suspense fallback={<div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="animate-spin text-slate-400" /></div>}>
