@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { ArrowLeft, Plus, Calendar, Trash2, Star, Clock, Trophy, Hourglass, Edit3, Archive, RotateCcw, ChevronRight } from "lucide-react";
+import { ArrowLeft, Plus, Calendar, Trash2, Star, Trophy, Hourglass, Edit3, Archive, RotateCcw, ChevronRight, Eye } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProgressChart from "@/components/ProgressChart";
 
@@ -150,14 +150,14 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
         
         {lessons.length === 0 ? (
             <div className="text-center py-12 border-2 border-dashed border-slate-200 rounded-xl bg-white/50">
-                <Clock className="mx-auto text-slate-300 mb-2" size={32} />
+                <Calendar className="mx-auto text-slate-300 mb-2" size={32} />
                 <p className="text-slate-400">No lessons logged yet.</p>
             </div>
         ) : (
             lessons.map((lesson) => (
                 <Link key={lesson.id} href={`/dashboard/lesson/${lesson.id}`} className="block relative group">
                      {/* Added 'hover:border-blue-300' to show it's clickable */}
-                     <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm relative active:scale-[0.99] transition-all hover:border-blue-300">
+                     <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm relative active:scale-[0.99] transition-all hover:border-blue-300 pb-14">
                         <LessonContent lesson={lesson} isInstructor={isInstructor} togglePayment={togglePayment} />
                         
                         {/* Instructor Actions */}
@@ -170,10 +170,10 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
                             </>
                         )}
 
-                        {/* Student Hint */}
+                        {/* NEW STUDENT BUTTON: REPLACES THE ARROW */}
                         {!isInstructor && (
-                            <div className="absolute bottom-4 right-4 text-slate-300">
-                                <ChevronRight size={20} />
+                            <div className="absolute bottom-4 right-4 text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 flex items-center gap-1 shadow-sm">
+                                View Details <ChevronRight size={12} />
                             </div>
                         )}
                      </div>
@@ -188,7 +188,7 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
 // Helper Component
 function LessonContent({ lesson, isInstructor, togglePayment }: any) {
     return (
-        <div className={isInstructor ? "pb-6" : ""}>
+        <div>
             <div className="flex justify-between items-start mb-3">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2 text-blue-600 font-bold text-sm">

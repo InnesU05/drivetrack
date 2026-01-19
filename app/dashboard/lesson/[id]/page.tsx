@@ -21,7 +21,7 @@ export default function LessonDetails({ params }: { params: Promise<{ id: string
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
-  const [isReadOnly, setIsReadOnly] = useState(false); // NEW: Track mode
+  const [isReadOnly, setIsReadOnly] = useState(false);
   const [studentId, setStudentId] = useState("");
   
   const [notes, setNotes] = useState("");
@@ -62,7 +62,7 @@ export default function LessonDetails({ params }: { params: Promise<{ id: string
   }, [lessonId, router]);
 
   const handleRate = (skill: string, value: number) => {
-    if (isReadOnly) return; // Prevent student changes
+    if (isReadOnly) return;
     setRatings((prev) => ({ ...prev, [skill]: value }));
   };
 
@@ -140,7 +140,6 @@ export default function LessonDetails({ params }: { params: Promise<{ id: string
                     {ratings[skill] || 0}/5
                 </span>
               </div>
-              {/* Pointer events none disables clicking for students */}
               <div className={`flex justify-center py-3 ${isReadOnly ? 'pointer-events-none opacity-90' : ''}`}>
                   <StarRating rating={ratings[skill] || 0} onRate={(val) => handleRate(skill, val)} />
               </div>
@@ -165,11 +164,12 @@ export default function LessonDetails({ params }: { params: Promise<{ id: string
             )}
         </div>
 
-        {/* NOTES */}
+        {/* NOTES - FIXED TO SHOW FULL MESSAGE */}
         <div>
             <h2 className="text-sm font-semibold text-slate-400 uppercase tracking-wider mb-2">Instructor Feedback</h2>
             {isReadOnly ? (
-                <div className="w-full bg-slate-50 border border-slate-200 rounded-xl p-5 min-h-[100px] text-slate-700 italic leading-relaxed">
+                // Added 'whitespace-pre-wrap break-words' to allow multiline messages
+                <div className="w-full bg-slate-50 border border-slate-200 rounded-xl p-5 min-h-[100px] text-slate-700 italic leading-relaxed whitespace-pre-wrap break-words">
                     {notes || "No notes for this lesson."}
                 </div>
             ) : (
