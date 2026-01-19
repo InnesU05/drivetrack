@@ -1,114 +1,152 @@
+"use client";
+
+import { useState, Suspense } from "react";
+import { createClient } from "@/utils/supabase/client";
+import { useRouter, useSearchParams } from "next/navigation";
 import Link from "next/link";
-import { ArrowRight, Smartphone, CreditCard, Shield, Zap } from "lucide-react";
+import { Car, Loader2, ArrowLeft } from "lucide-react";
 
-export default function LandingPage() {
+function AuthForm() {
+  const supabase = createClient();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  
+  const defaultView = searchParams.get("view") === "signup" ? "signup" : "login";
+  const [view, setView] = useState<"login" | "signup">(defaultView);
+  
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [fullName, setFullName] = useState("");
+  const [loading, setLoading] = useState(false);
+
+  const handleAuth = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    if (view === "signup") {
+        const { error } = await supabase.auth.signUp({
+            email,
+            password,
+            options: {
+                data: {
+                    full_name: fullName,
+                    role: 'instructor',
+                    subscription_status: 'trialing'
+                }
+            }
+        });
+        if (error) alert(error.message);
+        else {
+            router.refresh();
+            router.push("/dashboard");
+        }
+    } else {
+        const { error } = await supabase.auth.signInWithPassword({ email, password });
+        if (error) alert("Invalid login details.");
+        else {
+            router.refresh();
+            router.push("/dashboard");
+        }
+    }
+    setLoading(false);
+  };
+
   return (
-    <div className="min-h-screen bg-slate-50 flex flex-col font-sans">
-      {/* --- HEADER --- */}
-      <header className="w-full py-5 px-6 bg-white border-b border-slate-200 flex justify-between items-center sticky top-0 z-10">
-        <div className="flex items-center gap-2">
-            <Zap className="text-blue-600 fill-blue-600" size={24} />
-            <h1 className="text-xl font-extrabold text-slate-900 tracking-tight">LearnerLog</h1>
-        </div>
-        
-        <div className="flex items-center gap-6">
-          <Link href="/login" className="text-sm font-semibold text-slate-600 hover:text-blue-600 transition-colors">
-            Log In
-          </Link>
-          
-          {/* FIX: 'hidden sm:inline-flex' hides this button on mobile so header isn't squished */}
-          <Link
-            href="/subscribe"
-            className="hidden sm:inline-flex bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2.5 rounded-full shadow-sm transition-all active:scale-95"
-          >
-            Start Free Trial
-          </Link>
-        </div>
-      </header>
-
-      <main className="flex-1">
-        {/* --- HERO SECTION --- */}
-        <section className="px-6 py-20 md:py-32 text-center max-w-4xl mx-auto flex flex-col items-center">
-          
-          {/* Beta Badge */}
-          <div className="inline-flex items-center gap-2 bg-blue-50 border border-blue-100 text-blue-700 px-4 py-2 rounded-full text-sm font-medium mb-8 shadow-sm">
-            <span className="relative flex h-2.5 w-2.5">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-blue-600"></span>
-            </span>
-            Accepting Beta Testers
-          </div>
-
-          {/* Main Headline */}
-          <h2 className="text-4xl sm:text-5xl md:text-6xl font-extrabold text-slate-900 leading-[1.1] mb-6 tracking-tight">
-            The <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-blue-400">Smartest Way</span> <br className="hidden sm:block"/> to Run Your Driving School.
-          </h2>
-
-          {/* Subtitle */}
-          <p className="text-lg sm:text-xl text-slate-600 mb-12 leading-relaxed max-w-2xl">
-            Ditch the paper diaries and messy spreadsheets. Track student progress, manage payments, and view lesson history in one secure, modern app.
-          </p>
-
-          {/* Main CTA Button */}
-          <div className="flex flex-col w-full sm:w-auto">
-            <Link
-                href="/subscribe"
-                className="w-full sm:w-auto inline-flex items-center justify-center gap-3 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg py-4 px-8 rounded-2xl shadow-lg shadow-blue-600/20 transition-all active:scale-95 hover:-translate-y-1"
-            >
-                Start 1-Month Free Trial <ArrowRight size={22} />
-            </Link>
-            <p className="text-sm text-slate-400 mt-5">
-                No credit card required to sign up. Cancel anytime.
-            </p>
-          </div>
-        </section>
-
-        {/* --- FEATURES SECTION --- */}
-        <section className="px-6 py-20 bg-white border-t border-slate-100">
-            {/* FIX: 'grid-cols-1 md:grid-cols-3' ensures a vertical stack on mobile, 3-col on desktop */}
-            <div className="max-w-md mx-auto md:max-w-5xl grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-12">
-                
-                {/* Feature 1 */}
-                <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm shadow-blue-100/50 border border-blue-100">
-                        <Smartphone size={30} strokeWidth={1.5} />
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-3">Digital Lesson Logs</h3>
-                    <p className="text-slate-600 leading-relaxed text-base">
-                        Track skills, routes, and readiness scores. Give your students a professional progress report after every drive.
-                    </p>
-                </div>
-
-                {/* Feature 2 */}
-                <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-emerald-50 text-emerald-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm shadow-emerald-100/50 border border-emerald-100">
-                        <CreditCard size={30} strokeWidth={1.5} />
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-3">Payment Tracking</h3>
-                    <p className="text-slate-600 leading-relaxed text-base">
-                        Never lose track of who owes you money. Mark lessons as Paid/Unpaid and see instant debt alerts.
-                    </p>
-                </div>
-
-                {/* Feature 3 */}
-                <div className="flex flex-col items-center text-center">
-                    <div className="w-16 h-16 bg-purple-50 text-purple-600 rounded-2xl flex items-center justify-center mb-6 shadow-sm shadow-purple-100/50 border border-purple-100">
-                        <Shield size={30} strokeWidth={1.5} />
-                    </div>
-                    <h3 className="text-xl font-bold text-slate-900 mb-3">Secure & Private</h3>
-                    <p className="text-slate-600 leading-relaxed text-base">
-                        Your data is yours. We use enterprise-grade encryption to keep your student lists and contact details safe.
-                    </p>
-                </div>
-
+    <div className="w-full max-w-md bg-white p-6 rounded-3xl shadow-xl border border-slate-100">
+        <div className="text-center mb-6">
+            <div className="bg-blue-600 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 text-white shadow-lg shadow-blue-600/20">
+                <Car size={28} />
             </div>
-        </section>
-      </main>
+            <h1 className="text-2xl font-extrabold text-slate-900">
+                {view === 'login' ? 'Welcome Back' : 'Create Account'}
+            </h1>
+        </div>
 
-      {/* --- FOOTER --- */}
-      <footer className="py-8 text-center text-slate-400 text-sm bg-slate-50 border-t border-slate-200">
-        <p>© {new Date().getFullYear()} LearnerLog. All rights reserved.</p>
-      </footer>
+        {/* Toggle - Big Hit Area */}
+        <div className="flex bg-slate-100 p-1 rounded-2xl mb-6">
+            <button 
+                type="button"
+                onClick={() => setView('login')}
+                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${view === 'login' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}
+            >
+                Log In
+            </button>
+            <button 
+                type="button"
+                onClick={() => setView('signup')}
+                className={`flex-1 py-3 text-sm font-bold rounded-xl transition-all ${view === 'signup' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}
+            >
+                Sign Up
+            </button>
+        </div>
+
+        <form onSubmit={handleAuth} className="space-y-4">
+            {view === 'signup' && (
+                <div>
+                    <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Full Name</label>
+                    <input 
+                        type="text" 
+                        required 
+                        autoComplete="name"
+                        className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900"
+                        placeholder="John Doe"
+                        value={fullName}
+                        onChange={(e) => setFullName(e.target.value)}
+                    />
+                </div>
+            )}
+            
+            <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Email</label>
+                <input 
+                    type="email" 
+                    required 
+                    inputMode="email"
+                    autoCapitalize="none"
+                    autoComplete="email"
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900"
+                    placeholder="name@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                />
+            </div>
+
+            <div>
+                <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Password</label>
+                <input 
+                    type="password" 
+                    required 
+                    className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                />
+            </div>
+
+            <button 
+                type="submit" 
+                disabled={loading}
+                className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 rounded-2xl shadow-lg shadow-blue-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-lg mt-4"
+            >
+                {loading ? <Loader2 className="animate-spin" /> : (view === 'login' ? 'Log In' : 'Start Free Trial')}
+            </button>
+        </form>
+
+        <div className="mt-8 text-center">
+            <Link href="/" className="text-slate-400 hover:text-slate-600 text-sm font-bold flex items-center justify-center gap-2 p-2">
+                <ArrowLeft size={16} /> Back to Home
+            </Link>
+        </div>
+    </div>
+  );
+}
+
+export default function LoginPage() {
+  return (
+    <div className="min-h-[100dvh] bg-slate-50 flex items-center justify-center p-4">
+        <Suspense fallback={<div className="text-slate-400 font-bold">Loading...</div>}>
+            <AuthForm />
+        </Suspense>
     </div>
   );
 }
