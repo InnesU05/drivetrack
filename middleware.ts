@@ -1,8 +1,8 @@
 import { type NextRequest } from "next/server";
 import { updateSession } from "@/utils/supabase/middleware";
 
-// CHANGED: Function name is now 'proxy' instead of 'middleware'
-export async function proxy(request: NextRequest) {
+// CHANGED: Function name is now 'middleware'
+export async function middleware(request: NextRequest) {
   return await updateSession(request);
 }
 
