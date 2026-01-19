@@ -31,7 +31,7 @@ function AuthForm() {
                 data: {
                     full_name: fullName,
                     role: 'instructor',
-                    subscription_status: 'trialing'
+                    subscription_status: 'inactive' // Correct status for new users
                 }
             }
         });
@@ -112,7 +112,18 @@ function AuthForm() {
             </div>
 
             <div>
-                <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Password</label>
+                {/* HEADER ROW WITH FORGOT PASSWORD LINK */}
+                <div className="flex justify-between items-center mb-1 ml-1">
+                    <label className="block text-xs font-bold text-slate-500 uppercase">Password</label>
+                    {view === 'login' && (
+                        <Link 
+                            href="/forgot-password" 
+                            className="text-xs font-bold text-blue-600 hover:text-blue-700 hover:underline"
+                        >
+                            Forgot Password?
+                        </Link>
+                    )}
+                </div>
                 <input 
                     type="password" 
                     required 
