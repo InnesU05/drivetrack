@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-import { ArrowLeft, Plus, Calendar, Trash2, Star, Clock, Trophy, Hourglass, Edit3, Archive, RotateCcw } from "lucide-react";
+import { ArrowLeft, Plus, Calendar, Trash2, Star, Clock, Trophy, Hourglass, Edit3, Archive, RotateCcw, ChevronRight } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProgressChart from "@/components/ProgressChart";
 
@@ -19,16 +19,12 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   const [loading, setLoading] = useState(true);
   const [totalHours, setTotalHours] = useState(0);
   const [readiness, setReadiness] = useState(0);
-  
-  // NEW: State to check if viewer is the instructor
   const [isInstructor, setIsInstructor] = useState(false);
 
   useEffect(() => {
     async function loadData() {
-      // Check who is looking at the page
       const { data: { user } } = await supabase.auth.getUser();
       if (user) {
-        // If the logged-in user is NOT the student, they must be the instructor
         setIsInstructor(user.id !== studentId);
       }
 
@@ -61,7 +57,7 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   }, [studentId]);
 
   const toggleArchive = async () => {
-    if (!isInstructor) return; // Guard
+    if (!isInstructor) return; 
     const newValue = !student.archived;
     const confirmMessage = newValue 
         ? "Move this student to 'Past Students'?" 
@@ -88,7 +84,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
 
   const togglePayment = async (lessonId: string, currentStatus: boolean, e: React.MouseEvent) => {
     e.preventDefault(); e.stopPropagation();
-    // Only instructor can toggle payment
     if (!isInstructor) return; 
 
     const updatedLessons = lessons.map(l => l.id === lessonId ? { ...l, is_paid: !currentStatus } : l);
@@ -103,7 +98,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
       <div className="bg-white p-6 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
         <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-4">
-                {/* Only show Back button if Instructor (Student has nowhere to go back to) */}
                 {isInstructor && (
                     <Link href="/dashboard" className="text-slate-400 hover:text-slate-600"><ArrowLeft /></Link>
                 )}
@@ -113,7 +107,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
                 </div>
             </div>
             
-            {/* HIDE Archive Button for Students */}
             {isInstructor && (
                 <button 
                     onClick={toggleArchive}
@@ -123,7 +116,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
                 </button>
             )}
             
-            {/* Show Sign Out for Students (Since they don't have the dashboard settings) */}
             {!isInstructor && (
                 <button onClick={() => { supabase.auth.signOut(); router.push("/login"); }} className="text-slate-400 hover:text-red-500 text-xs font-bold border border-slate-200 px-3 py-2 rounded-lg">
                     Sign Out
@@ -131,7 +123,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
             )}
         </div>
 
-        {/* HIDE Log Lesson Button for Students */}
         {isInstructor && (
             <Link href={`/dashboard/student/${studentId}/log`} className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all">
                 <Plus size={24} /> Log New Lesson
@@ -164,23 +155,29 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
             </div>
         ) : (
             lessons.map((lesson) => (
-                // Only make it a Link (Editable) if it is the Instructor
-                <div key={lesson.id} className="relative">
-                    {isInstructor ? (
-                         <Link href={`/dashboard/lesson/${lesson.id}`} className="block bg-white p-5 rounded-xl border border-slate-100 shadow-sm relative group active:scale-[0.99] transition-transform pb-12">
-                            <LessonContent lesson={lesson} isInstructor={isInstructor} togglePayment={togglePayment} />
-                            <div className="absolute bottom-4 left-5 text-[10px] text-slate-300 font-bold italic flex items-center gap-1 group-hover:text-blue-400 transition-colors">
-                                <Edit3 size={10} /> Click to edit
+                <Link key={lesson.id} href={`/dashboard/lesson/${lesson.id}`} className="block relative group">
+                     {/* Added 'hover:border-blue-300' to show it's clickable */}
+                     <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm relative active:scale-[0.99] transition-all hover:border-blue-300">
+                        <LessonContent lesson={lesson} isInstructor={isInstructor} togglePayment={togglePayment} />
+                        
+                        {/* Instructor Actions */}
+                        {isInstructor && (
+                            <>
+                                <div className="absolute bottom-4 left-5 text-[10px] text-slate-300 font-bold italic flex items-center gap-1 group-hover:text-blue-400 transition-colors">
+                                    <Edit3 size={10} /> Click to edit
+                                </div>
+                                <button onClick={(e) => handleDeleteLesson(lesson.id, e)} className="absolute bottom-3 right-3 text-slate-300 hover:text-red-500 p-2 z-10"><Trash2 size={18} /></button>
+                            </>
+                        )}
+
+                        {/* Student Hint */}
+                        {!isInstructor && (
+                            <div className="absolute bottom-4 right-4 text-slate-300">
+                                <ChevronRight size={20} />
                             </div>
-                            <button onClick={(e) => handleDeleteLesson(lesson.id, e)} className="absolute bottom-3 right-3 text-slate-300 hover:text-red-500 p-2 z-10"><Trash2 size={18} /></button>
-                         </Link>
-                    ) : (
-                        // Read-Only View for Students
-                        <div className="block bg-white p-5 rounded-xl border border-slate-100 shadow-sm">
-                            <LessonContent lesson={lesson} isInstructor={isInstructor} togglePayment={togglePayment} />
-                        </div>
-                    )}
-                </div>
+                        )}
+                     </div>
+                </Link>
             ))
         )}
       </div>
@@ -188,10 +185,10 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   );
 }
 
-// Helper Component to avoid code duplication
+// Helper Component
 function LessonContent({ lesson, isInstructor, togglePayment }: any) {
     return (
-        <>
+        <div className={isInstructor ? "pb-6" : ""}>
             <div className="flex justify-between items-start mb-3">
                 <div className="flex flex-col">
                     <div className="flex items-center gap-2 text-blue-600 font-bold text-sm">
@@ -201,7 +198,6 @@ function LessonContent({ lesson, isInstructor, togglePayment }: any) {
                     <span className="text-xs text-slate-400 mt-1 font-medium">{lesson.duration || 1} Hr Lesson</span>
                 </div>
                 
-                {/* Students see a badge, Instructors see the toggle button */}
                 {isInstructor ? (
                     <button onClick={(e) => togglePayment(lesson.id, lesson.is_paid, e)} className={`relative w-24 h-9 rounded-full transition-colors duration-200 ease-in-out flex items-center px-1 shadow-inner ${lesson.is_paid ? 'bg-green-500' : 'bg-red-400'}`}>
                         <div className={`w-7 h-7 bg-white rounded-full shadow-md transform transition-transform duration-200 ${lesson.is_paid ? 'translate-x-[3.75rem]' : 'translate-x-0'}`} />
@@ -223,15 +219,14 @@ function LessonContent({ lesson, isInstructor, togglePayment }: any) {
                 ))}
             </div>
 
-            {/* NEW: Display Notes with CSS Fix */}
             {lesson.notes && (
                 <div className="bg-slate-50 p-3 rounded-lg border border-slate-100 mt-3 w-full">
-                    <p className="text-xs text-slate-500 font-bold uppercase mb-1">Instructor Feedback</p>
-                    <p className="text-sm text-slate-700 italic leading-relaxed whitespace-pre-wrap break-words">
+                    <p className="text-xs text-slate-500 font-bold uppercase mb-1">Feedback</p>
+                    <p className="text-sm text-slate-700 italic leading-relaxed whitespace-pre-wrap break-words line-clamp-2">
                         "{lesson.notes}"
                     </p>
                 </div>
             )}
-        </>
+        </div>
     )
 }
