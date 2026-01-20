@@ -4,25 +4,30 @@ import "./globals.css";
 
 const inter = Inter({ subsets: ["latin"] });
 
-export const metadata: Metadata = {
-  metadataBase: new URL("https://adibaseapp.co.uk"),
-  title: "ADIbase", 
-  description: "The complete driving lesson tracker.",
-  manifest: "/manifest.json",
-  appleWebApp: {
-    capable: true,
-    statusBarStyle: "default",
-    title: "ADIbase", 
-  },
-  
-};
-
 export const viewport: Viewport = {
-  themeColor: "#2563eb",
+  themeColor: "#2563eb", // Sets the browser bar color to your blue
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,
-  userScalable: false, // This stops the phone from zooming in when you tap an input
+  userScalable: false, // Makes it feel like an app (no zooming)
+};
+
+export const metadata: Metadata = {
+  metadataBase: new URL("https://adibase.co.uk"), // Ensure this is your real domain
+  title: "ADIbase",
+  description: "The complete driving lesson tracker.",
+  manifest: "/manifest.json",
+  
+  // 🔴 ADD THIS BLOCK HERE
+  icons: {
+    icon: "/icon-192.png",
+    shortcut: "/icon-192.png",
+    apple: "/icon-192.png", // This is the key fix for iOS/Chrome
+    other: {
+      rel: "apple-touch-icon-precomposed",
+      url: "/icon-192.png",
+    },
+  },
 };
 
 export default function RootLayout({
