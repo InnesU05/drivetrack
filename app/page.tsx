@@ -11,7 +11,10 @@ import {
   BarChart3, 
   Users, 
   Star,
-  Play
+  Play,
+  X,
+  Check,
+  QrCode
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -28,6 +31,9 @@ export default function LandingPage() {
               </div>
               <span className="text-xl font-extrabold tracking-tight">
                 ADI<span className="text-blue-600">base</span>
+              </span>
+              <span className="bg-blue-100 text-blue-700 text-[10px] font-extrabold px-2 py-0.5 rounded-full uppercase tracking-wide ml-1">
+                  Beta
               </span>
             </div>
 
@@ -58,7 +64,7 @@ export default function LandingPage() {
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
                 <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
               </span>
-             Now Live
+             Early Access Now Live
           </div>
           
           <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-[1.1]">
@@ -67,7 +73,7 @@ export default function LandingPage() {
           </h1>
           
           <p className="text-lg md:text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Ditch the paper diary. Track students, automate payments, and manage your business from your pocket.
+            Ditch the paper diary. Track students, <strong>record payments</strong>, and manage your business from your pocket.
           </p>
 
           <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
@@ -112,7 +118,7 @@ export default function LandingPage() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 {[
                     "Paperless Diary", 
-                    "Automated Finance", 
+                    "Finance Tracking", 
                     "Student Progress App"
                 ].map((item, i) => (
                     <div key={i} className="bg-slate-50 rounded-2xl p-6 flex items-center justify-center gap-3 font-bold text-slate-600 border border-slate-100">
@@ -122,8 +128,37 @@ export default function LandingPage() {
             </div>
         </section>
 
+        {/* --- 4. COMPARISON TABLE (New!) --- */}
+        <section className="max-w-3xl mx-auto mb-32">
+            <div className="text-center mb-10">
+                <h2 className="text-3xl font-extrabold text-slate-900">Stop living in the past.</h2>
+                <p className="text-slate-500 mt-2">See why ADIs are switching to digital.</p>
+            </div>
+            
+            <div className="bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden">
+                <div className="grid grid-cols-3 bg-slate-50 border-b border-slate-200 p-4 text-xs font-bold uppercase tracking-wider text-slate-500">
+                    <div className="col-span-1">Feature</div>
+                    <div className="col-span-1 text-center">Paper Diary</div>
+                    <div className="col-span-1 text-center text-blue-600">ADIbase</div>
+                </div>
+                
+                {[
+                    { name: "Data Backup", old: "Lost if dropped", new: "Secure Cloud" },
+                    { name: "Payment Status", old: "Guesswork", new: "Instantly Visible" },
+                    { name: "Student Feedback", old: "Verbal / Forgotten", new: "Visual App" },
+                    { name: "Looking Professional", old: "❌", new: "✅" },
+                ].map((row, i) => (
+                    <div key={i} className="grid grid-cols-3 p-5 border-b border-slate-100 last:border-0 items-center">
+                        <div className="col-span-1 font-bold text-slate-700 text-sm">{row.name}</div>
+                        <div className="col-span-1 text-center text-slate-400 font-medium text-sm flex justify-center">{row.old === "❌" ? <X size={18} /> : row.old}</div>
+                        <div className="col-span-1 text-center text-blue-600 font-bold text-sm flex justify-center bg-blue-50/50 py-1 rounded-lg">{row.new === "✅" ? <Check size={18} /> : row.new}</div>
+                    </div>
+                ))}
+            </div>
+        </section>
 
-        {/* --- 4. BENTO GRID FEATURES --- */}
+
+        {/* --- 5. BENTO GRID FEATURES --- */}
         <section className="max-w-6xl mx-auto mb-32">
             <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6">Everything you need.</h2>
@@ -131,38 +166,46 @@ export default function LandingPage() {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                {/* Feature 1: Progress Tracking (Wide) */}
-                <div className="md:col-span-2 bg-slate-50 rounded-[2.5rem] p-10 border border-slate-200 relative overflow-hidden group hover:border-blue-200 transition-colors">
-                    <div className="relative z-10">
-                        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 text-blue-600">
+                
+                {/* Feature 1: Student App (Redesigned Split Layout) */}
+                <div className="md:col-span-2 bg-slate-50 rounded-[2.5rem] p-10 border border-slate-200 relative overflow-hidden group hover:border-blue-200 transition-colors flex flex-col md:flex-row items-center gap-10">
+                    <div className="flex-1 text-center md:text-left z-10">
+                        <div className="w-14 h-14 bg-white rounded-2xl flex items-center justify-center shadow-sm mb-6 text-blue-600 mx-auto md:mx-0">
                             <Smartphone size={28} />
                         </div>
                         <h3 className="text-2xl font-bold text-slate-900 mb-2">Student App Included</h3>
-                        <p className="text-slate-500 max-w-sm">
-                            Your students get their own app to view lesson feedback, track progress, and see their test readiness score.
+                        <p className="text-slate-500 leading-relaxed">
+                            Give students a free login. They can view their progress charts, lesson history, and payment status instantly.
                         </p>
                     </div>
-                    {/* Decorative Elements */}
-                    <div className="absolute right-0 bottom-0 w-64 h-64 bg-white rounded-tl-[2.5rem] border-t border-l border-slate-200 shadow-sm translate-y-10 translate-x-10 group-hover:translate-x-6 group-hover:translate-y-6 transition-transform">
-                        <div className="p-6">
-                             <div className="flex gap-2 mb-4">
-                                {[1,2,3,4,5].map(i => <Star key={i} size={16} className="text-amber-400 fill-amber-400" />)}
-                             </div>
-                             <div className="h-2 w-24 bg-slate-100 rounded-full mb-2"></div>
-                             <div className="h-2 w-16 bg-slate-100 rounded-full"></div>
-                        </div>
+                    
+                    {/* CSS Phone Mockup */}
+                    <div className="relative w-48 h-64 bg-white border-8 border-slate-900 rounded-[2rem] shadow-xl flex-shrink-0 translate-y-8 md:translate-y-0">
+                         <div className="w-full h-full bg-slate-50 rounded-[1.5rem] overflow-hidden p-3 space-y-2">
+                              <div className="w-16 h-4 bg-slate-200 rounded-full mx-auto mb-4"></div>
+                              <div className="w-full h-20 bg-white rounded-xl border border-slate-100 shadow-sm p-2 flex gap-2">
+                                  <div className="w-8 h-8 rounded-full bg-blue-100"></div>
+                                  <div className="flex-1 space-y-1">
+                                      <div className="w-20 h-2 bg-slate-200 rounded-full"></div>
+                                      <div className="w-12 h-2 bg-slate-100 rounded-full"></div>
+                                  </div>
+                              </div>
+                              <div className="w-full h-20 bg-white rounded-xl border border-slate-100 shadow-sm opacity-50"></div>
+                         </div>
+                         {/* Notch */}
+                         <div className="absolute top-0 left-1/2 -translate-x-1/2 w-20 h-4 bg-slate-900 rounded-b-xl"></div>
                     </div>
                 </div>
 
-                {/* Feature 2: Finance (Tall) */}
+                {/* Feature 2: Finance (Updated Copy) */}
                 <div className="bg-slate-900 rounded-[2.5rem] p-10 text-white relative overflow-hidden">
                     <div className="relative z-10">
                         <div className="w-14 h-14 bg-white/10 rounded-2xl flex items-center justify-center backdrop-blur-sm mb-6 text-blue-400">
                             <CreditCard size={28} />
                         </div>
-                        <h3 className="text-2xl font-bold mb-2">Track Payments</h3>
-                        <p className="text-slate-400 text-sm">
-                            Instantly see who owes you money. Mark lessons as paid with one tap.
+                        <h3 className="text-2xl font-bold mb-2">Smart Finance Logs</h3>
+                        <p className="text-slate-400 text-sm leading-relaxed">
+                            Manually track who has paid and who hasn't. See your total earnings at a glance.
                         </p>
                     </div>
                 </div>
@@ -191,17 +234,36 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* --- 5. FAQ --- */}
+        {/* --- 6. HOW IT WORKS (New!) --- */}
+        <section className="max-w-4xl mx-auto mb-32">
+             <h2 className="text-3xl font-extrabold text-slate-900 mb-12 text-center">Get started in 3 minutes</h2>
+             <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                 {[
+                    { step: 1, title: "Create Account", text: "Sign up for the free trial. No credit card required to start." },
+                    { step: 2, title: "Invite Student", text: "Show them your unique QR code. They scan it to connect instantly." },
+                    { step: 3, title: "Start Logging", text: "Track their first lesson and mark it as paid. It's that easy." }
+                 ].map((s, i) => (
+                    <div key={i} className="relative">
+                        <div className="text-6xl font-black text-slate-100 absolute -top-4 -left-2 -z-10">{s.step}</div>
+                        <h3 className="text-xl font-bold text-slate-900 mb-2">{s.title}</h3>
+                        <p className="text-slate-500 text-sm">{s.text}</p>
+                    </div>
+                 ))}
+             </div>
+        </section>
+
+
+        {/* --- 7. FAQ --- */}
         <section className="max-w-3xl mx-auto mb-20">
             <h2 className="text-3xl font-extrabold text-slate-900 mb-10 text-center">Common Questions</h2>
             <div className="space-y-4">
                 <FaqItem question="Does it work on Android and iPhone?" answer="Yes! ADIbase is a web app that works perfectly on any phone, tablet, or computer. You can even install it to your home screen." />
-                <FaqItem question="Can students log in?" answer="Yes. You can invite students via email. They get a free 'read-only' account to see their progress and lesson history." />
+                <FaqItem question="Can students log in?" answer="Yes. You invite students via a QR code. They get a free 'read-only' account to see their progress and lesson history." />
                 <FaqItem question="How much does it cost?" answer="It's just £5.99 per month. You get full access to all features, unlimited students, and unlimited storage." />
             </div>
         </section>
 
-        {/* --- 6. CTA --- */}
+        {/* --- 8. CTA --- */}
         <section className="max-w-4xl mx-auto text-center bg-slate-900 rounded-3xl p-12 md:p-20 relative overflow-hidden">
             <div className="relative z-10">
                 <h2 className="text-3xl md:text-5xl font-extrabold text-white mb-6">Ready to upgrade your school?</h2>
