@@ -127,6 +127,8 @@ function DashboardContent() {
                     <Link href="/dashboard/invite" className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl inline-flex items-center gap-2 shadow-lg"><QrCode size={20} /> Invite Student</Link>
                  </div>
               </div>
+              
+              {/* HELPER BUTTONS (Empty State) */}
               <div className="grid grid-cols-2 gap-3">
                   <Link href="/dashboard/help" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs"><BookOpen size={16} /> How to Use</Link>
                   <Link href="/dashboard/install" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs"><Download size={16} /> Install App</Link>
@@ -136,6 +138,16 @@ function DashboardContent() {
            <>
                 <Link href="/dashboard/invite" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all"><QrCode size={20} /> Invite New Student</Link>
                 
+                {/* --- RESTORED HELPER BUTTONS (Populated State) --- */}
+                <div className="grid grid-cols-2 gap-3">
+                    <Link href="/dashboard/help" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs shadow-sm active:scale-95 transition-all">
+                        <BookOpen size={16} /> How to Use
+                    </Link>
+                    <Link href="/dashboard/install" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs shadow-sm active:scale-95 transition-all">
+                        <Download size={16} /> Install App
+                    </Link>
+                </div>
+
                 <div className="flex gap-2">
                     <div className="relative flex-1">
                         <Search className="absolute left-3 top-3 text-slate-400" size={16} />
@@ -167,7 +179,7 @@ function DashboardContent() {
                                         </div>
                                     </div>
                                     
-                                    {/* Unpaid Badge (Improved Design) */}
+                                    {/* Unpaid Badge */}
                                     {student.unpaid_count > 0 && !student.archived ? (
                                         <div className="flex-shrink-0 bg-red-50 text-red-600 border border-red-100 px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1.5 shadow-sm">
                                             <AlertCircle size={12} strokeWidth={3} />
