@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { Loader2, CheckCircle, UserPlus } from "lucide-react";
+import { Loader2, CheckCircle, UserPlus, ArrowRight } from "lucide-react";
 import Link from "next/link";
 
 export default function JoinClass({ params }: { params: Promise<{ instructorId: string }> }) {
@@ -18,7 +18,6 @@ export default function JoinClass({ params }: { params: Promise<{ instructorId: 
 
   useEffect(() => {
     async function checkInstructor() {
-      // 1. Check if the instructor exists
       const { data: instructor } = await supabase
         .from("profiles")
         .select("full_name")
@@ -45,11 +44,8 @@ export default function JoinClass({ params }: { params: Promise<{ instructorId: 
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        // If not logged in, we need to redirect them to Signup, 
-        // but we want them to come back here after!
-        // For MVP, just telling them to log in is safer/easier.
-        alert("Please Log In or Sign Up first, then scan the code again.");
-        router.push("/login"); 
+        // 🔴 FIX: Send them to STUDENT SIGNUP, not generic login
+        router.push(`/signup/student?ref=${instructorId}`); 
         return;
     }
 
@@ -58,19 +54,18 @@ export default function JoinClass({ params }: { params: Promise<{ instructorId: 
         .from("profiles")
         .update({ 
             instructor_id: instructorId,
-            role: 'student' // Force role to student
+            role: 'student' 
         })
         .eq("id", user.id);
 
     if (error) {
         setStatus("error");
         setErrorMsg("Failed to join class.");
+        setLoading(false);
     } else {
         setStatus("success");
-        // Redirect to their dashboard after 2 seconds
         setTimeout(() => router.push("/dashboard"), 2000);
     }
-    setLoading(false);
   };
 
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="animate-spin text-blue-600" /></div>;
@@ -104,14 +99,20 @@ export default function JoinClass({ params }: { params: Promise<{ instructorId: 
 
         <button 
             onClick={handleJoin}
-            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-lg active:scale-95 transition-all flex items-center justify-center gap-2"
         >
-            Yes, Join Class
+            Yes, Join Class <ArrowRight size={20} />
         </button>
         
-        <p className="text-xs text-slate-400 mt-4">
-            Note: You must have created an account first.
+        {/* Updated Text */}
+        <p className="text-xs text-slate-400 mt-6 font-medium">
+            Don't have an account? We'll create one next.
         </p>
+
+        {/* Existing User Fallback */}
+        <Link href="/login" className="block mt-4 text-sm font-bold text-blue-600 hover:underline">
+            Already have an account? Log In
+        </Link>
       </div>
     </div>
   );

@@ -3,14 +3,14 @@
 import { useState, Suspense } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter, useSearchParams } from "next/navigation";
-import { UserCheck, Loader2 } from "lucide-react";
+import { UserCheck, Loader2, ArrowLeft } from "lucide-react";
+import Link from "next/link";
 
 function SignupForm() {
   const searchParams = useSearchParams();
   const router = useRouter();
   const supabase = createClient();
   
-  // This grabs the Instructor ID from the QR code link
   const instructorId = searchParams.get("ref");
   
   const [formData, setFormData] = useState({ email: "", password: "", fullName: "" });
@@ -20,7 +20,6 @@ function SignupForm() {
     e.preventDefault();
     setLoading(true);
     
-    // Sign up and link to instructor
     const { error } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
@@ -37,63 +36,78 @@ function SignupForm() {
       alert("Error signing up: " + error.message);
       setLoading(false);
     } else {
-      alert("Success! You can now log in.");
-      // In a real app, we'd redirect to the student dashboard here
-      router.push("/"); 
+      // 🔴 FIX: Send them to dashboard, not home
+      router.refresh();
+      router.push("/dashboard"); 
     }
   };
 
-  if (!instructorId) return <div className="p-10 text-center text-red-500">Invalid Invite Link. Ask your instructor to scan the QR code again.</div>;
+  if (!instructorId) return <div className="p-10 text-center text-red-500 font-bold">Invalid Invite Link. Ask your instructor to scan the QR code again.</div>;
 
   return (
-    <div className="min-h-screen bg-blue-600 flex items-center justify-center p-6">
-      <form onSubmit={handleSignup} className="bg-white w-full max-w-sm p-8 rounded-2xl shadow-xl">
-        <div className="flex justify-center mb-6">
-          <div className="bg-blue-100 p-3 rounded-full text-blue-600">
-            <UserCheck size={32} />
-          </div>
+    <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+      <div className="w-full max-w-md bg-white p-8 rounded-3xl shadow-xl border border-slate-100">
+        <div className="text-center mb-8">
+            <div className="bg-blue-100 w-14 h-14 rounded-2xl flex items-center justify-center mx-auto mb-4 text-blue-600">
+                <UserCheck size={28} />
+            </div>
+            <h1 className="text-2xl font-extrabold text-slate-900">Student Account</h1>
+            <p className="text-slate-500 text-sm mt-1">Create your free account to join.</p>
         </div>
-        <h2 className="text-2xl font-bold text-center mb-2 text-slate-900">Create Student Account</h2>
-        <p className="text-center text-slate-500 mb-6 text-sm">Join your instructor's class</p>
         
-        <div className="space-y-4">
-          <input 
-            type="text" 
-            placeholder="Full Name" 
-            required
-            className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-900"
-            onChange={e => setFormData({...formData, fullName: e.target.value})}
-          />
-          <input 
-            type="email" 
-            placeholder="Email" 
-            required
-            className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-900"
-            onChange={e => setFormData({...formData, email: e.target.value})}
-          />
-          <input 
-            type="password" 
-            placeholder="Password" 
-            required
-            className="w-full p-3 border border-slate-200 rounded-lg focus:ring-2 focus:ring-blue-500 outline-none text-slate-900"
-            onChange={e => setFormData({...formData, password: e.target.value})}
-          />
+        <form onSubmit={handleSignup} className="space-y-4">
+          <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Full Name</label>
+              <input 
+                type="text" 
+                placeholder="Ex. Sarah Jones" 
+                required
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900"
+                onChange={e => setFormData({...formData, fullName: e.target.value})}
+              />
+          </div>
+          <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Email</label>
+              <input 
+                type="email" 
+                placeholder="name@example.com" 
+                required
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900"
+                onChange={e => setFormData({...formData, email: e.target.value})}
+              />
+          </div>
+          <div>
+              <label className="block text-xs font-bold text-slate-500 uppercase mb-1 ml-1">Password</label>
+              <input 
+                type="password" 
+                placeholder="••••••••" 
+                required
+                className="w-full p-4 bg-slate-50 border border-slate-200 rounded-2xl outline-none focus:ring-2 focus:ring-blue-500 font-medium text-slate-900"
+                onChange={e => setFormData({...formData, password: e.target.value})}
+              />
+          </div>
+
           <button 
             disabled={loading}
-            className="w-full bg-blue-600 text-white font-bold py-3 rounded-lg hover:bg-blue-700 transition-colors flex justify-center items-center"
+            className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold h-14 rounded-2xl shadow-lg shadow-blue-600/20 active:scale-[0.98] transition-all flex items-center justify-center gap-2 text-lg mt-6"
           >
-            {loading ? <Loader2 className="animate-spin" /> : "Join Instructor"}
+            {loading ? <Loader2 className="animate-spin" /> : "Create Account & Join"}
           </button>
+        </form>
+
+        <div className="mt-8 text-center">
+            <Link href="/login" className="text-slate-400 hover:text-slate-600 text-sm font-bold flex items-center justify-center gap-2 p-2">
+                <ArrowLeft size={16} /> Already have an account?
+            </Link>
         </div>
-      </form>
+      </div>
     </div>
   );
 }
 
-// We wrap the form in Suspense because it reads data from the URL (useSearchParams)
 export default function StudentSignupPage() {
   return (
-    <Suspense fallback={<div className="p-10 text-center">Loading form...</div>}>
+    <Suspense fallback={<div className="min-h-screen flex items-center justify-center text-slate-400 font-bold">Loading...</div>}>
       <SignupForm />
     </Suspense>
   );
