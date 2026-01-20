@@ -21,7 +21,7 @@ export default function StudentViewPage() {
 
       <div className="max-w-md mx-auto space-y-12">
         
-        {/* Screen 1: The Invite (NEW) */}
+        {/* Screen 1: The Invite */}
         <div className="space-y-3">
             <h2 className="text-sm font-bold text-slate-900 flex items-center gap-2">
                 <span className="bg-blue-100 text-blue-700 w-6 h-6 rounded-full flex items-center justify-center text-xs">1</span>
@@ -31,12 +31,12 @@ export default function StudentViewPage() {
                 When they scan your QR code, they see this custom welcome screen asking to join your class.
             </p>
             
-            <div className="relative border-8 border-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl bg-white aspect-[9/19]">
+            <div className="relative border-8 border-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100 aspect-[9/19]">
                 <Image 
                     src="/demo-join.png" 
                     alt="Student Join Screen"
                     fill
-                    className="object-cover"
+                    className="object-contain" // 🔴 Changed from object-cover
                     placeholder="empty"
                 />
             </div>
@@ -52,12 +52,12 @@ export default function StudentViewPage() {
                 They can see their <strong>Test Readiness</strong> score and upcoming lesson time immediately.
             </p>
             
-            <div className="relative border-8 border-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl bg-white aspect-[9/19]">
+            <div className="relative border-8 border-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100 aspect-[9/19]">
                 <Image 
                     src="/demo-dashboard.png" 
                     alt="Student Dashboard Preview"
                     fill
-                    className="object-cover"
+                    className="object-contain" // 🔴 Changed from object-cover
                     placeholder="empty"
                 />
             </div>
@@ -73,12 +73,12 @@ export default function StudentViewPage() {
                 They see every lesson you log, including your notes and the star ratings for that session.
             </p>
             
-            <div className="relative border-8 border-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl bg-white aspect-[9/19]">
+            <div className="relative border-8 border-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100 aspect-[9/19]">
                 <Image 
                     src="/demo-logs.png" 
                     alt="Student Logs Preview"
                     fill
-                    className="object-cover"
+                    className="object-contain" // 🔴 Changed from object-cover
                     placeholder="empty"
                 />
             </div>
@@ -94,12 +94,12 @@ export default function StudentViewPage() {
                 They can clearly see which lessons are <strong>Unpaid</strong> (marked in red) so they know to bring cash or transfer money.
             </p>
             
-            <div className="relative border-8 border-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl bg-white aspect-[9/19]">
+            <div className="relative border-8 border-slate-900 rounded-[2.5rem] overflow-hidden shadow-2xl bg-slate-100 aspect-[9/19]">
                 <Image 
                     src="/demo-payments.png" 
                     alt="Student Payments Preview"
                     fill
-                    className="object-cover"
+                    className="object-contain" // 🔴 Changed from object-cover
                     placeholder="empty"
                 />
             </div>
