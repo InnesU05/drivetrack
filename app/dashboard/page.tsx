@@ -21,6 +21,13 @@ function DashboardContent() {
   const [searchTerm, setSearchTerm] = useState("");
   const [currentTab, setCurrentTab] = useState<'active' | 'archived'>('active');
 
+  const handleSignOut = async () => {
+    if (confirm("Are you sure you want to sign out?")) {
+        await supabase.auth.signOut();
+        router.push("/login");
+    }
+  };
+
   useEffect(() => {
     async function loadData() {
       const { data: { user } } = await supabase.auth.getUser();
@@ -112,7 +119,7 @@ function DashboardContent() {
         </div>
         <div className="flex items-center gap-2">
             <Link href="/dashboard/settings" className="p-2 text-slate-400 hover:text-blue-600 hover:bg-slate-50 rounded-lg"><Settings size={20} /></Link>
-            <button onClick={() => { supabase.auth.signOut(); router.push("/login"); }} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><LogOut size={20} /></button>
+            <button onClick={handleSignOut} className="p-2 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-lg"><LogOut size={20} /></button>
         </div>
       </div>
 
@@ -127,8 +134,6 @@ function DashboardContent() {
                     <Link href="/dashboard/invite" className="bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-8 rounded-xl inline-flex items-center gap-2 shadow-lg"><QrCode size={20} /> Invite Student</Link>
                  </div>
               </div>
-              
-              {/* HELPER BUTTONS (Empty State) */}
               <div className="grid grid-cols-2 gap-3">
                   <Link href="/dashboard/help" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs"><BookOpen size={16} /> How to Use</Link>
                   <Link href="/dashboard/install" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs"><Download size={16} /> Install App</Link>
@@ -138,7 +143,6 @@ function DashboardContent() {
            <>
                 <Link href="/dashboard/invite" className="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-4 rounded-xl shadow-md flex items-center justify-center gap-2 active:scale-95 transition-all"><QrCode size={20} /> Invite New Student</Link>
                 
-                {/* --- RESTORED HELPER BUTTONS (Populated State) --- */}
                 <div className="grid grid-cols-2 gap-3">
                     <Link href="/dashboard/help" className="flex items-center justify-center gap-2 p-3 bg-white border border-slate-200 rounded-xl text-slate-600 font-bold text-xs shadow-sm active:scale-95 transition-all">
                         <BookOpen size={16} /> How to Use
@@ -179,7 +183,6 @@ function DashboardContent() {
                                         </div>
                                     </div>
                                     
-                                    {/* Unpaid Badge */}
                                     {student.unpaid_count > 0 && !student.archived ? (
                                         <div className="flex-shrink-0 bg-red-50 text-red-600 border border-red-100 px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1.5 shadow-sm">
                                             <AlertCircle size={12} strokeWidth={3} />
@@ -190,7 +193,6 @@ function DashboardContent() {
                                     )}
                                 </div>
 
-                                {/* "Tap to view" Visual Cue */}
                                 <div className="flex justify-between items-center pt-3 border-t border-slate-50">
                                     <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider flex items-center gap-1">
                                         <User size={12} /> Student Profile

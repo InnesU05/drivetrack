@@ -21,7 +21,14 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   const [readiness, setReadiness] = useState(0);
   const [isInstructor, setIsInstructor] = useState(false);
 
-  // ... (Your Helper functions for archive, delete, payment - Keep these exactly as they were!)
+  // --- ACTIONS ---
+  const handleSignOut = async () => {
+    if (confirm("Are you sure you want to sign out?")) {
+        await supabase.auth.signOut();
+        router.push("/login");
+    }
+  };
+
   const toggleArchive = async () => {
     if (!confirm("Are you sure you want to " + (student.archived ? "restore" : "archive") + " this student?")) return;
     const { error } = await supabase.from("profiles").update({ archived: !student.archived }).eq("id", studentId);
@@ -41,6 +48,7 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
     if (!error) setLessons(lessons.map(l => l.id === lessonId ? { ...l, is_paid: !currentStatus } : l));
   };
 
+  // --- LOAD DATA ---
   useEffect(() => {
       async function loadData() {
         const { data: { user } } = await supabase.auth.getUser();
@@ -81,6 +89,8 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
 
   return (
     <div className="min-h-screen bg-slate-50 pb-24">
+      
+      {/* HEADER */}
       <div className="bg-white p-6 border-b border-slate-200 sticky top-0 z-10 shadow-sm">
         <div className="flex justify-between items-start mb-4">
             <div className="flex items-center gap-4">
@@ -89,36 +99,23 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
                 )}
                 <div>
                     <h1 className="text-xl font-bold text-slate-900 truncate max-w-[200px]">{student?.full_name}</h1>
-                    
-                    {/* --- NEW: Email Display --- */}
                     <p className="text-sm text-slate-500 font-medium flex items-center gap-1.5 mt-1">
                         <Mail size={14} className="text-slate-400"/>
                         {student?.email}
                     </p>
-
                     {student?.archived && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold mt-2 inline-block">ARCHIVED</span>}
                 </div>
             </div>
             
-            {isInstructor && (
-                <button 
-                    onClick={toggleArchive}
-                    className="text-slate-400 hover:text-blue-600 p-2"
-                >
+            {isInstructor ? (
+                <button onClick={toggleArchive} className="text-slate-400 hover:text-blue-600 p-2">
                     {student?.archived ? <RotateCcw size={20} /> : <Archive size={20} />}
                 </button>
-            )}
-            
-            {!isInstructor && (
-                <div className="flex gap-2">
-                    <Link href={`/dashboard/student/${studentId}/install`} className="text-slate-400 hover:text-blue-600 p-2 border border-slate-200 rounded-lg">
-                        <Download size={20} />
-                    </Link>
-                    
-                    <button onClick={() => { supabase.auth.signOut(); router.push("/login"); }} className="text-slate-400 hover:text-red-500 text-xs font-bold border border-slate-200 px-3 py-2 rounded-lg">
-                        Sign Out
-                    </button>
-                </div>
+            ) : (
+                // STUDENT VIEW: Only Sign Out here now (Install button moved below)
+                <button onClick={handleSignOut} className="text-slate-400 hover:text-red-500 text-xs font-bold border border-slate-200 px-3 py-2 rounded-lg transition-colors">
+                    Sign Out
+                </button>
             )}
         </div>
 
@@ -130,6 +127,18 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
       </div>
 
       <div className="p-4 space-y-4">
+        
+        {/* --- NEW: Prominent Install Button (Student Only) --- */}
+        {!isInstructor && (
+            <Link 
+                href={`/dashboard/student/${studentId}/install`} 
+                className="w-full bg-white border border-slate-200 hover:border-blue-300 hover:text-blue-600 text-slate-600 font-bold py-3 px-4 rounded-xl shadow-sm flex items-center justify-center gap-2 active:scale-95 transition-all"
+            >
+                <Download size={20} /> Install App to Home Screen
+            </Link>
+        )}
+
+        {/* Stats Grid */}
         <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-1">
                 <div className="bg-blue-50 p-2 rounded-full text-blue-600 mb-1"><Hourglass size={20} /></div>
@@ -158,16 +167,14 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
                      <div className="bg-white p-5 rounded-xl border border-slate-100 shadow-sm relative active:scale-[0.99] transition-all hover:border-blue-300 pb-14">
                         <LessonContent lesson={lesson} isInstructor={isInstructor} togglePayment={togglePayment} />
                         
-                        {isInstructor && (
+                        {isInstructor ? (
                             <>
                                 <div className="absolute bottom-4 left-5 text-[10px] text-slate-300 font-bold italic flex items-center gap-1 group-hover:text-blue-400 transition-colors">
                                     <Edit3 size={10} /> Click to edit
                                 </div>
                                 <button onClick={(e) => handleDeleteLesson(lesson.id, e)} className="absolute bottom-3 right-3 text-slate-300 hover:text-red-500 p-2 z-10"><Trash2 size={18} /></button>
                             </>
-                        )}
-
-                        {!isInstructor && (
+                        ) : (
                             <div className="absolute bottom-4 right-4 text-[10px] font-bold text-blue-600 bg-blue-50 px-3 py-1.5 rounded-full border border-blue-100 flex items-center gap-1 shadow-sm">
                                 View Details <ChevronRight size={12} />
                             </div>
@@ -181,7 +188,7 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   );
 }
 
-// ... (Helper Component - Keep existing)
+// ... (Helper Component)
 function LessonContent({ lesson, isInstructor, togglePayment }: any) {
     return (
         <div>
