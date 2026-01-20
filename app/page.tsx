@@ -1,31 +1,40 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image"; // 🔴 Added Import
 import { 
   ArrowRight, 
   Smartphone, 
   CreditCard, 
   ShieldCheck, 
-  Car, 
   CheckCircle2, 
   BarChart3, 
   Play,
   X,
   Check,
-  Zap
+  Zap,
+  Car // Kept specifically for the footer or other sections if needed, but removed from Nav
 } from "lucide-react";
 
 export default function LandingPage() {
   return (
     <div className="min-h-screen bg-white font-sans text-slate-900 selection:bg-blue-100">
       
-      {/* --- 1. NAVBAR (Unchanged) --- */}
+      {/* --- 1. NAVBAR --- */}
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-xl border-b border-slate-100 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <div className="bg-blue-600 p-1.5 rounded-lg text-white">
-                <Car size={20} strokeWidth={3} />
+              
+              {/* 🔴 NEW: Custom App Logo */}
+              <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-sm">
+                  <Image 
+                    src="/icon-192.png" 
+                    alt="ADIbase Logo" 
+                    fill
+                    className="object-cover"
+                  />
               </div>
+
               <span className="text-xl font-extrabold tracking-tight">
                 ADI<span className="text-blue-600">base</span>
               </span>
@@ -53,7 +62,7 @@ export default function LandingPage() {
 
       <main className="pt-32 pb-20 px-6">
         
-        {/* --- 2. HERO SECTION (Unchanged) --- */}
+        {/* --- 2. HERO SECTION --- */}
         <section className="max-w-4xl mx-auto text-center mb-20">
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wide mb-6 border border-blue-100 animate-in fade-in slide-in-from-bottom-4 duration-700">
              <span className="relative flex h-2 w-2">
@@ -87,6 +96,7 @@ export default function LandingPage() {
             </Link>
           </div>
 
+          {/* Video Placeholder */}
           <div className="relative w-full max-w-4xl mx-auto aspect-video bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 flex flex-col items-center justify-center group overflow-hidden cursor-pointer">
              <div className="absolute inset-0 bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 opacity-80 group-hover:opacity-60 transition-opacity"></div>
              <div className="relative z-10 w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 group-hover:scale-110 transition-transform">
@@ -101,7 +111,7 @@ export default function LandingPage() {
           </div>
         </section>
 
-        {/* --- 3. SOCIAL PROOF (Unchanged) --- */}
+        {/* --- 3. SOCIAL PROOF --- */}
         <section className="max-w-5xl mx-auto mb-32 text-center">
             <p className="text-sm font-bold text-slate-400 uppercase tracking-widest mb-8">Trusted by smart instructors</p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -117,7 +127,7 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* --- 4. COMPARISON TABLE (Unchanged) --- */}
+        {/* --- 4. COMPARISON TABLE --- */}
         <section className="max-w-3xl mx-auto mb-32">
             <div className="text-center mb-10">
                 <h2 className="text-3xl font-extrabold text-slate-900">Stop living in the past.</h2>
@@ -145,7 +155,7 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* --- 5. FEATURES RELAYOUT --- */}
+        {/* --- 5. FEATURES --- */}
         <section className="max-w-6xl mx-auto mb-32">
             <div className="text-center mb-16">
                 <h2 className="text-3xl md:text-5xl font-extrabold text-slate-900 mb-6">Everything you need.</h2>
@@ -164,7 +174,7 @@ export default function LandingPage() {
                     </p>
                 </div>
                 
-                {/* CSS Phone Mockup - Dark Mode Style */}
+                {/* CSS Phone Mockup */}
                 <div className="relative w-64 h-[22rem] bg-slate-800 border-8 border-slate-700 rounded-[2.5rem] shadow-2xl flex-shrink-0 rotate-3 md:rotate-0 hover:rotate-0 transition-all duration-500">
                         <div className="w-full h-full bg-slate-900 rounded-[2rem] overflow-hidden p-4 space-y-3">
                             <div className="w-24 h-4 bg-slate-700 rounded-full mx-auto mb-6 opacity-50"></div>
@@ -183,7 +193,7 @@ export default function LandingPage() {
                 </div>
             </div>
 
-            {/* B. The 3-Column Feature Grid (Replacing the messy bento boxes) */}
+            {/* B. The 3-Column Feature Grid */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                 
                 {/* Finance Card */}
@@ -222,7 +232,7 @@ export default function LandingPage() {
             </div>
         </section>
 
-        {/* --- 6. HOW IT WORKS (Redesigned) --- */}
+        {/* --- 6. HOW IT WORKS --- */}
         <section className="max-w-5xl mx-auto mb-32 px-4">
              <div className="text-center mb-16">
                 <span className="text-blue-600 font-bold text-sm uppercase tracking-widest">Simple Workflow</span>
@@ -230,7 +240,6 @@ export default function LandingPage() {
              </div>
              
              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 relative">
-                 {/* Connecting Line (Desktop) */}
                  <div className="hidden md:block absolute top-12 left-0 w-full h-0.5 bg-slate-100 -z-10"></div>
 
                  {[
@@ -249,11 +258,9 @@ export default function LandingPage() {
              </div>
         </section>
 
-        {/* --- 7. PRICING (New Section!) --- */}
+        {/* --- 7. PRICING --- */}
         <section className="max-w-4xl mx-auto mb-32">
             <div className="bg-blue-600 rounded-3xl p-10 md:p-16 text-white flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl shadow-blue-900/20 relative overflow-hidden">
-                
-                {/* Background Pattern */}
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
 
                 <div className="flex-1">
