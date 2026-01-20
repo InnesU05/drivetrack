@@ -3,8 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { createClient } from "@/utils/supabase/client";
 import Link from "next/link";
-// Added 'Download' to imports
-import { ArrowLeft, Plus, Calendar, Trash2, Star, Trophy, Hourglass, Edit3, Archive, RotateCcw, ChevronRight, Download } from "lucide-react";
+import { ArrowLeft, Plus, Calendar, Trash2, Star, Trophy, Hourglass, Edit3, Archive, RotateCcw, ChevronRight, Download, Mail } from "lucide-react";
 import { useRouter } from "next/navigation";
 import ProgressChart from "@/components/ProgressChart";
 
@@ -15,7 +14,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   const supabase = createClient();
   const router = useRouter();
 
-  // ... (Keep existing state: student, lessons, loading, etc.)
   const [student, setStudent] = useState<any>(null);
   const [lessons, setLessons] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -23,7 +21,25 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   const [readiness, setReadiness] = useState(0);
   const [isInstructor, setIsInstructor] = useState(false);
 
-  // ... (Keep existing useEffect and helper functions)
+  // ... (Your Helper functions for archive, delete, payment - Keep these exactly as they were!)
+  const toggleArchive = async () => {
+    if (!confirm("Are you sure you want to " + (student.archived ? "restore" : "archive") + " this student?")) return;
+    const { error } = await supabase.from("profiles").update({ archived: !student.archived }).eq("id", studentId);
+    if (!error) setStudent({ ...student, archived: !student.archived });
+  };
+
+  const handleDeleteLesson = async (lessonId: string, e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    if (!confirm("Delete this lesson log?")) return;
+    const { error } = await supabase.from("lessons").delete().eq("id", lessonId);
+    if (!error) setLessons(lessons.filter(l => l.id !== lessonId));
+  };
+
+  const togglePayment = async (lessonId: string, currentStatus: boolean, e: React.MouseEvent) => {
+    e.preventDefault(); e.stopPropagation();
+    const { error } = await supabase.from("lessons").update({ is_paid: !currentStatus }).eq("id", lessonId);
+    if (!error) setLessons(lessons.map(l => l.id === lessonId ? { ...l, is_paid: !currentStatus } : l));
+  };
 
   useEffect(() => {
       async function loadData() {
@@ -60,19 +76,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
       loadData();
     }, [studentId]);
 
-  // ... (Keep toggleArchive, handleDeleteLesson, etc.)
-
-  const toggleArchive = async () => {
-    // ... existing logic
-  };
-
-  const handleDeleteLesson = async (lessonId: string, e: React.MouseEvent) => {
-    // ... existing logic
-  };
-
-  const togglePayment = async (lessonId: string, currentStatus: boolean, e: React.MouseEvent) => {
-    // ... existing logic
-  };
 
   if (loading) return <div className="p-6 text-center text-slate-400">Loading profile...</div>;
 
@@ -85,8 +88,15 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
                     <Link href="/dashboard" className="text-slate-400 hover:text-slate-600"><ArrowLeft /></Link>
                 )}
                 <div>
-                    <h1 className="text-xl font-bold text-slate-900 truncate">{student?.full_name}</h1>
-                    {student?.archived && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold">ARCHIVED</span>}
+                    <h1 className="text-xl font-bold text-slate-900 truncate max-w-[200px]">{student?.full_name}</h1>
+                    
+                    {/* --- NEW: Email Display --- */}
+                    <p className="text-sm text-slate-500 font-medium flex items-center gap-1.5 mt-1">
+                        <Mail size={14} className="text-slate-400"/>
+                        {student?.email}
+                    </p>
+
+                    {student?.archived && <span className="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded font-bold mt-2 inline-block">ARCHIVED</span>}
                 </div>
             </div>
             
@@ -101,7 +111,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
             
             {!isInstructor && (
                 <div className="flex gap-2">
-                    {/* NEW INSTALL BUTTON */}
                     <Link href={`/dashboard/student/${studentId}/install`} className="text-slate-400 hover:text-blue-600 p-2 border border-slate-200 rounded-lg">
                         <Download size={20} />
                     </Link>
@@ -121,7 +130,6 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
       </div>
 
       <div className="p-4 space-y-4">
-        {/* ... (Keep existing Chart and Lesson List code) ... */}
         <div className="grid grid-cols-2 gap-4">
             <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center justify-center gap-1">
                 <div className="bg-blue-50 p-2 rounded-full text-blue-600 mb-1"><Hourglass size={20} /></div>
@@ -173,9 +181,8 @@ export default function StudentProfile({ params }: { params: Promise<{ id: strin
   );
 }
 
-// ... (Keep helper components)
+// ... (Helper Component - Keep existing)
 function LessonContent({ lesson, isInstructor, togglePayment }: any) {
-    // ... content from previous file
     return (
         <div>
             <div className="flex justify-between items-start mb-3">
