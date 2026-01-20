@@ -3,7 +3,7 @@
 import { useEffect, useState, use } from "react";
 import { createClient } from "@/utils/supabase/client";
 import { useRouter } from "next/navigation";
-import { Loader2, CheckCircle, UserPlus, ArrowRight } from "lucide-react";
+import { Loader2, CheckCircle, UserPlus, ArrowRight, AlertTriangle } from "lucide-react"; // Added AlertTriangle
 import Link from "next/link";
 
 export default function JoinClass({ params }: { params: Promise<{ instructorId: string }> }) {
@@ -13,11 +13,12 @@ export default function JoinClass({ params }: { params: Promise<{ instructorId: 
 
   const [loading, setLoading] = useState(true);
   const [instructorName, setInstructorName] = useState("");
-  const [status, setStatus] = useState<'checking' | 'success' | 'error'>('checking');
+  const [status, setStatus] = useState<'checking' | 'success' | 'error' | 'conflict'>('checking'); // Added 'conflict'
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     async function checkInstructor() {
+      // 1. Validate the QR Code (Instructor ID)
       const { data: instructor } = await supabase
         .from("profiles")
         .select("full_name")
@@ -44,12 +45,25 @@ export default function JoinClass({ params }: { params: Promise<{ instructorId: 
     const { data: { user } } = await supabase.auth.getUser();
 
     if (!user) {
-        // 🔴 FIX: Send them to STUDENT SIGNUP, not generic login
+        // If no user, send to student signup
         router.push(`/signup/student?ref=${instructorId}`); 
         return;
     }
 
-    // 2. Link them to the instructor
+    // 2. SAFETY CHECK: Fetch their current profile to ensure they aren't an Instructor
+    const { data: profile } = await supabase
+        .from("profiles")
+        .select("role, id")
+        .eq("id", user.id)
+        .single();
+
+    if (profile?.role === 'instructor') {
+        setStatus("conflict"); // Stop! Don't let an instructor become a student.
+        setLoading(false);
+        return;
+    }
+
+    // 3. Link them (Only if they are NOT an instructor)
     const { error } = await supabase
         .from("profiles")
         .update({ 
@@ -68,13 +82,36 @@ export default function JoinClass({ params }: { params: Promise<{ instructorId: 
     }
   };
 
+  const handleLogout = async () => {
+      await supabase.auth.signOut();
+      window.location.reload(); // Refresh to clear state and allow signup
+  };
+
   if (loading) return <div className="min-h-screen flex items-center justify-center bg-slate-50"><Loader2 className="animate-spin text-blue-600" /></div>;
+
+  // --- ERROR STATES ---
 
   if (status === 'success') return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-green-50">
         <div className="bg-green-100 p-4 rounded-full text-green-600 mb-4"><CheckCircle size={48} /></div>
         <h1 className="text-2xl font-bold text-slate-900">You're in!</h1>
         <p className="text-slate-600 mt-2">Redirecting to your dashboard...</p>
+    </div>
+  );
+
+  if (status === 'conflict') return (
+    <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-amber-50">
+        <div className="bg-amber-100 p-4 rounded-full text-amber-600 mb-4"><AlertTriangle size={48} /></div>
+        <h1 className="text-xl font-bold text-slate-900">You are an Instructor</h1>
+        <p className="text-slate-600 mt-2 mb-6 max-w-xs mx-auto text-sm">
+            You are currently logged in as an Instructor. You cannot join another class as a student unless you log out first.
+        </p>
+        <button onClick={handleLogout} className="bg-white border border-slate-300 text-slate-700 font-bold py-3 px-6 rounded-xl hover:bg-slate-50">
+            Log Out & Create Student Account
+        </button>
+        <Link href="/dashboard" className="mt-4 block text-blue-600 font-bold text-sm">
+            Return to my Dashboard
+        </Link>
     </div>
   );
 
@@ -85,6 +122,8 @@ export default function JoinClass({ params }: { params: Promise<{ instructorId: 
         <Link href="/dashboard" className="mt-4 text-blue-600 underline">Go Home</Link>
     </div>
   );
+
+  // --- MAIN VIEW ---
 
   return (
     <div className="min-h-screen bg-slate-50 flex flex-col items-center justify-center p-6">
@@ -104,12 +143,10 @@ export default function JoinClass({ params }: { params: Promise<{ instructorId: 
             Yes, Join Class <ArrowRight size={20} />
         </button>
         
-        {/* Updated Text */}
         <p className="text-xs text-slate-400 mt-6 font-medium">
             Don't have an account? We'll create one next.
         </p>
 
-        {/* Existing User Fallback */}
         <Link href="/login" className="block mt-4 text-sm font-bold text-blue-600 hover:underline">
             Already have an account? Log In
         </Link>
