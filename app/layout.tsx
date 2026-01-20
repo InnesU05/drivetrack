@@ -5,7 +5,7 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://adibaseapp.vercel.app"),
+  metadataBase: new URL("https://adibaseapp.co.uk"),
   title: "ADIbase", 
   description: "The complete driving lesson tracker.",
   manifest: "/manifest.json",
