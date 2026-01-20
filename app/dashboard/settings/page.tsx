@@ -11,7 +11,8 @@ import {
   Mail, 
   Trash2, 
   Star,
-  ExternalLink 
+  ExternalLink,
+  Smartphone // New icon for the student preview
 } from "lucide-react";
 
 export default function SettingsPage() {
@@ -56,7 +57,7 @@ export default function SettingsPage() {
 
       <div className="max-w-2xl mx-auto p-4 space-y-6">
         
-        {/* 1. SUBSCRIPTION SECTION */}
+        {/* 1. SUBSCRIPTION SECTION (Restored) */}
         <div className="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
             <div className="p-6 border-b border-slate-100">
                 <h2 className="text-lg font-bold text-slate-900 flex items-center gap-2">
@@ -87,8 +88,22 @@ export default function SettingsPage() {
                 <h3 className="font-bold text-slate-900 text-sm uppercase tracking-wide opacity-50">General</h3>
              </div>
              
+             {/* --- NEW: Student App Preview Button --- */}
+             <Link href="/dashboard/settings/student-view" className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors border-b border-slate-100 group">
+                <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 rounded-full bg-purple-50 text-purple-600 flex items-center justify-center group-hover:bg-purple-600 group-hover:text-white transition-colors">
+                        <Smartphone size={20} />
+                    </div>
+                    <div>
+                        <p className="font-bold text-slate-900">Student App Preview</p>
+                        <p className="text-xs text-slate-500">See what your students see.</p>
+                    </div>
+                </div>
+                <ChevronRight className="text-slate-300 group-hover:text-purple-600" />
+             </Link>
+
              {/* Contact Support Link */}
-             <Link href="/dashboard/settings/contact" className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors border-b border-slate-100 last:border-0 group">
+             <Link href="/dashboard/settings/contact" className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors border-b border-slate-100 group">
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center group-hover:bg-blue-600 group-hover:text-white transition-colors">
                         <Mail size={20} />
@@ -101,7 +116,7 @@ export default function SettingsPage() {
                 <ChevronRight className="text-slate-300 group-hover:text-blue-600" />
              </Link>
 
-             {/* Review Link (NEW) */}
+             {/* Review Link */}
              <Link href="/dashboard/settings/review" className="flex items-center justify-between p-4 hover:bg-slate-50 transition-colors group">
                 <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-amber-50 text-amber-600 flex items-center justify-center group-hover:bg-amber-400 group-hover:text-white transition-colors">
