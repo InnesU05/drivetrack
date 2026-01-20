@@ -35,10 +35,21 @@ function DashboardContent() {
       
       let { data: profile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
 
-      // --- 1. HANDLE RACE CONDITION ---
+      // 🔴 CRITICAL FIX: Trust the User Metadata first. 
+      // The database trigger might be slow to create the profile row, so 'profile.role' might be missing or default.
+      // But 'user.user_metadata.role' is guaranteed to be correct from the signup form.
+      const effectiveRole = user.user_metadata?.role || profile?.role;
+
+      // --- 1. STUDENT REDIRECT (Priority) ---
+      if (effectiveRole === 'student') {
+        router.replace(`/dashboard/student/${user.id}`);
+        return;
+      }
+
+      // --- 2. HANDLE PAYMENT SYNCING ---
       const justPaid = searchParams.get("payment") === "success";
 
-      if (justPaid && profile?.role === 'instructor' && profile?.subscription_status !== 'active' && profile?.subscription_status !== 'trialing') {
+      if (justPaid && effectiveRole === 'instructor' && profile?.subscription_status !== 'active' && profile?.subscription_status !== 'trialing') {
           setIsSyncing(true);
           const interval = setInterval(async () => {
               const { data: newProfile } = await supabase.from("profiles").select("*").eq("id", user.id).single();
@@ -53,20 +64,15 @@ function DashboardContent() {
           return; 
       }
 
-      // --- 2. NORMAL CHECK ---
-      if (!justPaid && profile?.role === 'instructor') {
-          if (profile.subscription_status !== 'active' && profile.subscription_status !== 'trialing') {
+      // --- 3. CHECK SUBSCRIPTION (Instructors Only) ---
+      if (!justPaid && effectiveRole === 'instructor') {
+          if (profile?.subscription_status !== 'active' && profile?.subscription_status !== 'trialing') {
               router.replace("/subscribe");
               return;
           }
       }
 
-      if (profile?.role === 'student') {
-        router.replace(`/dashboard/student/${user.id}`);
-        return;
-      }
-
-      // --- 3. LOAD DATA ---
+      // --- 4. LOAD INSTRUCTOR DATA ---
       setInstructorName(user.user_metadata.full_name || "Instructor");
 
       const { data: studentData } = await supabase
@@ -183,6 +189,7 @@ function DashboardContent() {
                                         </div>
                                     </div>
                                     
+                                    {/* Unpaid Badge */}
                                     {student.unpaid_count > 0 && !student.archived ? (
                                         <div className="flex-shrink-0 bg-red-50 text-red-600 border border-red-100 px-3 py-1.5 rounded-lg text-[10px] font-extrabold uppercase tracking-wide flex items-center gap-1.5 shadow-sm">
                                             <AlertCircle size={12} strokeWidth={3} />
