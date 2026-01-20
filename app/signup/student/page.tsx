@@ -20,7 +20,8 @@ function SignupForm() {
     e.preventDefault();
     setLoading(true);
     
-    const { error } = await supabase.auth.signUp({
+    // 1. Create the Auth User
+    const { data, error } = await supabase.auth.signUp({
       email: formData.email,
       password: formData.password,
       options: {
@@ -35,11 +36,25 @@ function SignupForm() {
     if (error) {
       alert("Error signing up: " + error.message);
       setLoading(false);
-    } else {
-      // 🔴 FIX: Send them to dashboard, not home
-      router.refresh();
-      router.push("/dashboard"); 
+      return;
+    } 
+    
+    // 2. FORCE LINK: Manually ensure profile exists and is linked immediately
+    // This fixes the "Race Condition" where the trigger is too slow or ignores metadata
+    if (data.user && instructorId) {
+        await supabase.from("profiles").upsert({
+            id: data.user.id,
+            email: formData.email,
+            full_name: formData.fullName,
+            role: 'student',
+            instructor_id: instructorId,
+            archived: false
+        }, { onConflict: 'id' });
     }
+
+    // 3. Redirect
+    router.refresh();
+    router.push("/dashboard"); 
   };
 
   if (!instructorId) return <div className="p-10 text-center text-red-500 font-bold">Invalid Invite Link. Ask your instructor to scan the QR code again.</div>;
@@ -96,7 +111,8 @@ function SignupForm() {
         </form>
 
         <div className="mt-8 text-center">
-            <Link href="/login" className="text-slate-400 hover:text-slate-600 text-sm font-bold flex items-center justify-center gap-2 p-2">
+            {/* Added ref param here too so they don't get lost if they log in instead */}
+            <Link href={`/login`} className="text-slate-400 hover:text-slate-600 text-sm font-bold flex items-center justify-center gap-2 p-2">
                 <ArrowLeft size={16} /> Already have an account?
             </Link>
         </div>
