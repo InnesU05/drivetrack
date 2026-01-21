@@ -98,16 +98,17 @@ export default function LandingPage() {
           </div>
 
           {/* --- APP SHOWCASE GALLERY --- */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto px-4">
+          {/* UPDATED LAYOUT: Horizontal Scroll on Mobile, Grid on Desktop */}
+          <div className="flex md:grid md:grid-cols-3 overflow-x-auto md:overflow-visible snap-x snap-mandatory gap-5 md:gap-10 max-w-6xl mx-auto pb-8 md:pb-0 [&::-webkit-scrollbar]:hidden -mx-6 px-6 md:mx-auto md:px-4">
               
               {/* Photo 1: QR Code Invite */}
-              <div className="flex flex-col items-center group">
-                  <div className="relative w-full max-w-[280px] aspect-[9/19] bg-slate-100 border-8 border-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden mb-8 transition-transform duration-500 group-hover:-translate-y-2">
+              <div className="min-w-[85%] sm:min-w-[320px] md:min-w-0 flex flex-col items-center group snap-center">
+                  <div className="relative w-full aspect-[9/19] bg-slate-100 border-8 border-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden mb-6 transition-transform duration-500 md:group-hover:-translate-y-2">
                       <Image 
                         src="/landing-invite.png" 
                         alt="QR Invite" 
                         fill 
-                        className="object-contain" // 🔴 Changed to contain
+                        className="object-contain" 
                       />
                   </div>
                   <h3 className="text-xl font-bold text-slate-900">Instant Onboarding</h3>
@@ -117,13 +118,13 @@ export default function LandingPage() {
               </div>
 
               {/* Photo 2: Dashboard Preview */}
-              <div className="flex flex-col items-center group">
-                  <div className="relative w-full max-w-[280px] aspect-[9/19] bg-slate-100 border-8 border-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden mb-8 transition-transform duration-500 group-hover:-translate-y-2 delay-75">
+              <div className="min-w-[85%] sm:min-w-[320px] md:min-w-0 flex flex-col items-center group snap-center">
+                  <div className="relative w-full aspect-[9/19] bg-slate-100 border-8 border-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden mb-6 transition-transform duration-500 md:group-hover:-translate-y-2 md:delay-75">
                        <Image 
                         src="/landing-dashboard.png" 
                         alt="Dashboard" 
                         fill 
-                        className="object-contain" // 🔴 Changed to contain
+                        className="object-contain" 
                        />
                   </div>
                   <h3 className="text-xl font-bold text-slate-900">Your Command Center</h3>
@@ -133,13 +134,13 @@ export default function LandingPage() {
               </div>
 
               {/* Photo 3: Student Profile/Graph */}
-              <div className="flex flex-col items-center group">
-                  <div className="relative w-full max-w-[280px] aspect-[9/19] bg-slate-100 border-8 border-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden mb-8 transition-transform duration-500 group-hover:-translate-y-2 delay-150">
+              <div className="min-w-[85%] sm:min-w-[320px] md:min-w-0 flex flex-col items-center group snap-center">
+                  <div className="relative w-full aspect-[9/19] bg-slate-100 border-8 border-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden mb-6 transition-transform duration-500 md:group-hover:-translate-y-2 md:delay-150">
                        <Image 
                         src="/landing-profile.png" 
                         alt="Progress" 
                         fill 
-                        className="object-contain" // 🔴 Changed to contain
+                        className="object-contain" 
                        />
                   </div>
                   <h3 className="text-xl font-bold text-slate-900">Visual Progress</h3>
@@ -301,8 +302,6 @@ export default function LandingPage() {
         {/* --- 7. PRICING --- */}
         <section className="max-w-4xl mx-auto mb-32">
             <div className="bg-blue-600 rounded-3xl p-10 md:p-16 text-white flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl shadow-blue-900/20 relative overflow-hidden">
-                
-                {/* Background Pattern */}
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
 
                 <div className="flex-1">
