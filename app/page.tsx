@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image"; // 🔴 Added Import
+import Image from "next/image"; 
 import { 
   ArrowRight, 
   Smartphone, 
@@ -13,7 +13,7 @@ import {
   X,
   Check,
   Zap,
-  Car // Kept specifically for the footer or other sections if needed, but removed from Nav
+  Car
 } from "lucide-react";
 
 export default function LandingPage() {
@@ -24,8 +24,6 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full bg-white/80 backdrop-blur-xl border-b border-slate-100 z-50">
         <div className="max-w-6xl mx-auto px-6 h-16 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              
-              {/* 🔴 NEW: Custom App Logo */}
               <div className="relative w-8 h-8 rounded-lg overflow-hidden shadow-sm">
                   <Image 
                     src="/icon-192.png" 
@@ -34,7 +32,6 @@ export default function LandingPage() {
                     className="object-cover"
                   />
               </div>
-
               <span className="text-xl font-extrabold tracking-tight">
                 ADI<span className="text-blue-600">base</span>
               </span>
@@ -63,51 +60,94 @@ export default function LandingPage() {
       <main className="pt-32 pb-20 px-6">
         
         {/* --- 2. HERO SECTION --- */}
-        <section className="max-w-4xl mx-auto text-center mb-20">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wide mb-6 border border-blue-100 animate-in fade-in slide-in-from-bottom-4 duration-700">
-             <span className="relative flex h-2 w-2">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
-                <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
-              </span>
-             Early Access Now Live
-          </div>
+        <section className="max-w-7xl mx-auto text-center mb-24">
           
-          <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-[1.1]">
-            The modern way to run <br className="hidden md:block" />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">your driving school.</span>
-          </h1>
-          
-          <p className="text-lg md:text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
-            Ditch the paper diary. Track students, <strong>record payments</strong>, and manage your business from your pocket.
-          </p>
+          {/* Text Container */}
+          <div className="max-w-4xl mx-auto">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-blue-50 text-blue-700 text-xs font-bold uppercase tracking-wide mb-6 border border-blue-100 animate-in fade-in slide-in-from-bottom-4 duration-700">
+              <span className="relative flex h-2 w-2">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-blue-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2 w-2 bg-blue-500"></span>
+                </span>
+              Early Access Now Live
+            </div>
+            
+            <h1 className="text-5xl md:text-7xl font-extrabold text-slate-900 mb-6 tracking-tight leading-[1.1]">
+              The modern way to run <br className="hidden md:block" />
+              <span className="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600">your driving school.</span>
+            </h1>
+            
+            <p className="text-lg md:text-xl text-slate-500 mb-10 max-w-2xl mx-auto leading-relaxed">
+              Ditch the paper diary. Track students, <strong>record payments</strong>, and manage your business from your pocket.
+            </p>
 
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-12">
-            <Link
-                href="/login?view=signup"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-xl shadow-blue-600/20 active:scale-[0.98] transition-all"
-            >
-                Start Free Trial <ArrowRight size={20} />
-            </Link>
-            <Link
-                href="/login"
-                className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-lg px-8 py-4 rounded-full shadow-sm active:scale-[0.98] transition-all"
-            >
-                Log In
-            </Link>
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-20">
+              <Link
+                  href="/login?view=signup"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-blue-600 hover:bg-blue-700 text-white font-bold text-lg px-8 py-4 rounded-full shadow-xl shadow-blue-600/20 active:scale-[0.98] transition-all"
+              >
+                  Start Free Trial <ArrowRight size={20} />
+              </Link>
+              <Link
+                  href="/login"
+                  className="w-full sm:w-auto flex items-center justify-center gap-2 bg-white hover:bg-slate-50 text-slate-700 border border-slate-200 font-bold text-lg px-8 py-4 rounded-full shadow-sm active:scale-[0.98] transition-all"
+              >
+                  Log In
+              </Link>
+            </div>
           </div>
 
-          {/* Video Placeholder */}
-          <div className="relative w-full max-w-4xl mx-auto aspect-video bg-slate-900 rounded-3xl shadow-2xl border border-slate-800 flex flex-col items-center justify-center group overflow-hidden cursor-pointer">
-             <div className="absolute inset-0 bg-gradient-to-tr from-slate-900 via-slate-800 to-slate-900 opacity-80 group-hover:opacity-60 transition-opacity"></div>
-             <div className="relative z-10 w-20 h-20 bg-white/10 backdrop-blur-sm rounded-full flex items-center justify-center border border-white/20 group-hover:scale-110 transition-transform">
-                <Play fill="white" className="text-white ml-1" size={32} />
-             </div>
-             <p className="relative z-10 text-slate-400 font-medium mt-4 group-hover:text-white transition-colors">
-                 Watch 1-minute Demo
-             </p>
-             <div className="absolute top-4 right-4 bg-black/50 backdrop-blur px-3 py-1 rounded-full text-xs font-bold text-white border border-white/10">
-                 Video Demo Box
-             </div>
+          {/* --- APP SHOWCASE GALLERY --- */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10 max-w-6xl mx-auto px-4">
+              
+              {/* Photo 1: QR Code Invite */}
+              <div className="flex flex-col items-center group">
+                  <div className="relative w-full max-w-[280px] aspect-[9/19] bg-slate-100 border-8 border-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden mb-8 transition-transform duration-500 group-hover:-translate-y-2">
+                      <Image 
+                        src="/landing-invite.png" 
+                        alt="QR Invite" 
+                        fill 
+                        className="object-contain" // 🔴 Changed to contain
+                      />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Instant Onboarding</h3>
+                  <p className="text-slate-500 text-sm mt-2 max-w-[250px] mx-auto leading-relaxed">
+                      No data entry required. Students simply scan your code to create their account and link to you.
+                  </p>
+              </div>
+
+              {/* Photo 2: Dashboard Preview */}
+              <div className="flex flex-col items-center group">
+                  <div className="relative w-full max-w-[280px] aspect-[9/19] bg-slate-100 border-8 border-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden mb-8 transition-transform duration-500 group-hover:-translate-y-2 delay-75">
+                       <Image 
+                        src="/landing-dashboard.png" 
+                        alt="Dashboard" 
+                        fill 
+                        className="object-contain" // 🔴 Changed to contain
+                       />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Your Command Center</h3>
+                  <p className="text-slate-500 text-sm mt-2 max-w-[250px] mx-auto leading-relaxed">
+                      See your entire school at a glance. Identify unpaid lessons and active students instantly.
+                  </p>
+              </div>
+
+              {/* Photo 3: Student Profile/Graph */}
+              <div className="flex flex-col items-center group">
+                  <div className="relative w-full max-w-[280px] aspect-[9/19] bg-slate-100 border-8 border-slate-900 rounded-[2.5rem] shadow-2xl overflow-hidden mb-8 transition-transform duration-500 group-hover:-translate-y-2 delay-150">
+                       <Image 
+                        src="/landing-profile.png" 
+                        alt="Progress" 
+                        fill 
+                        className="object-contain" // 🔴 Changed to contain
+                       />
+                  </div>
+                  <h3 className="text-xl font-bold text-slate-900">Visual Progress</h3>
+                  <p className="text-slate-500 text-sm mt-2 max-w-[250px] mx-auto leading-relaxed">
+                      "Test Ready" scores and skill graphs show students exactly how close they are to passing.
+                  </p>
+              </div>
+
           </div>
         </section>
 
@@ -261,6 +301,8 @@ export default function LandingPage() {
         {/* --- 7. PRICING --- */}
         <section className="max-w-4xl mx-auto mb-32">
             <div className="bg-blue-600 rounded-3xl p-10 md:p-16 text-white flex flex-col md:flex-row items-center justify-between gap-10 shadow-2xl shadow-blue-900/20 relative overflow-hidden">
+                
+                {/* Background Pattern */}
                 <div className="absolute top-0 right-0 -mr-20 -mt-20 w-96 h-96 bg-white/5 rounded-full blur-3xl pointer-events-none"></div>
 
                 <div className="flex-1">
